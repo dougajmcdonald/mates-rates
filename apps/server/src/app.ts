@@ -24,12 +24,12 @@ app.get('/', (c) => {
     return c.text('Hello Mates Rates!')
 })
 
-app.get('/protected', authMiddleware, (c) => {
+app.get('/api/protected', authMiddleware, (c) => {
     const user = c.get('user')
     return c.json({ message: 'You are authenticated!', user })
 })
 
-app.post('/users/sync', authMiddleware, async (c) => {
+app.post('/api/users/sync', authMiddleware, async (c) => {
     const user = c.get('user')
     const { email, user_metadata } = user
 
@@ -46,7 +46,7 @@ app.post('/users/sync', authMiddleware, async (c) => {
 
 const JWT_SECRET = process.env.SUPABASE_SERVICE_ROLE_KEY! // Reuse key for simplicity
 
-app.post('/listings', authMiddleware, async (c) => {
+app.post('/api/listings', authMiddleware, async (c) => {
     const user = c.get('user')
     const body = await c.req.json()
 
@@ -71,7 +71,7 @@ app.post('/listings', authMiddleware, async (c) => {
     }
 })
 
-app.get('/listings', authMiddleware, async (c) => {
+app.get('/api/listings', authMiddleware, async (c) => {
     const user = c.get('user')
     try {
         const items = await ListingRepository.findAll(user.id)
@@ -82,7 +82,7 @@ app.get('/listings', authMiddleware, async (c) => {
     }
 })
 
-app.post('/share', authMiddleware, async (c) => {
+app.post('/api/share', authMiddleware, async (c) => {
     const user = c.get('user')
     // Generate a token valid for 7 days
     const token = await sign({
@@ -93,7 +93,7 @@ app.post('/share', authMiddleware, async (c) => {
     return c.json({ token })
 })
 
-app.post('/accept-invite', authMiddleware, async (c) => {
+app.post('/api/accept-invite', authMiddleware, async (c) => {
     const user = c.get('user')
     const { token } = await c.req.json()
 
@@ -113,7 +113,7 @@ app.post('/accept-invite', authMiddleware, async (c) => {
 })
 
 // Health check (no auth, no db)
-app.get('/health', (c) => c.json({ status: 'ok', time: new Date().toISOString() }))
+app.get('/api/health', (c) => c.json({ status: 'ok', time: new Date().toISOString() }))
 
 
 
