@@ -11,6 +11,16 @@ dotenv.config()
 
 const app = new Hono<{ Variables: { user: any } }>()
 
+app.use('*', async (c, next) => {
+    console.log(`[${new Date().toISOString()}] ${c.req.method} ${c.req.path}`)
+    console.log('Headers:', c.req.header())
+    await next()
+})
+
+app.options('*', (c) => {
+    return c.text('', 204)
+})
+
 app.use('/*', cors({
     origin: (process.env.FRONTEND_URL || 'http://localhost:5173').replace(/\/$/, ''),
     allowMethods: ['POST', 'GET', 'OPTIONS'],
