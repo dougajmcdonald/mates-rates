@@ -1,6 +1,15 @@
 {
     "$schema": "https://turbo.build/schema.json",
     "ui": "tui",
+    "globalEnv": [
+        "SUPABASE_URL",
+        "SUPABASE_ANON_KEY",
+        "SUPABASE_SERVICE_ROLE_KEY",
+        "FRONTEND_URL",
+        "VITE_SUPABASE_URL",
+        "VITE_SUPABASE_ANON_KEY",
+        "VITE_API_URL"
+    ],
     "tasks": {
         "build": {
             "dependsOn": [
