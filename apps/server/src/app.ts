@@ -11,19 +11,9 @@ dotenv.config()
 
 const app = new Hono<{ Variables: { user: any } }>()
 
-// 1. Logger (First to capture everything)
-app.use('*', async (c, next) => {
-    console.log(`[${new Date().toISOString()}] ${c.req.method} ${c.req.path}`)
-    console.log('Headers:', c.req.header())
-    await next()
-})
-
-// 2. CORS (Permissive Mode)
 app.use('/*', cors({
-    origin: (origin) => {
-        return origin || process.env.FRONTEND_URL || 'http://localhost:5173';
-    },
-    allowMethods: ['POST', 'GET', 'OPTIONS', 'PUT', 'DELETE', 'PATCH', 'HEAD'],
+    origin: (process.env.FRONTEND_URL || 'http://localhost:5173').replace(/\/$/, ''),
+    allowMethods: ['POST', 'GET', 'OPTIONS'],
     allowHeaders: ['Content-Type', 'Authorization'],
     exposeHeaders: ['Content-Length', 'X-Kuma-Revision'],
     maxAge: 600,
