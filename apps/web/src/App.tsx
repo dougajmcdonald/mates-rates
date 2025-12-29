@@ -6,6 +6,7 @@ import { Loader2 } from "lucide-react"
 import Dashboard from "@/pages/Dashboard"
 import CreateListing from "@/pages/CreateListing"
 import Invite from "@/pages/Invite"
+import ListingDetails from "@/pages/ListingDetails"
 
 function Landing() {
   const { signInWithGoogle, user, loading } = useAuth()
@@ -38,6 +39,7 @@ function App() {
           <Route element={<ProtectedRoute />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/listings/new" element={<CreateListing />} />
+            <Route path="/listings/:id" element={<ListingDetails />} />
             <Route path="/invite" element={<Invite />} />
           </Route>
         </Routes>

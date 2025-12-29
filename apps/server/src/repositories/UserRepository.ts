@@ -22,4 +22,11 @@ export class UserRepository {
     static async findById(id: string) {
         return await db.select().from(users).where(eq(users.id, id)).limit(1);
     }
+
+    static async updateStripeAccountId(userId: string, accountId: string) {
+        return await db.update(users)
+            .set({ stripeAccountId: accountId })
+            .where(eq(users.id, userId))
+            .returning();
+    }
 }
