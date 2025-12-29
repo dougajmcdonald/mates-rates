@@ -7,6 +7,7 @@ import Dashboard from "@/pages/Dashboard"
 import CreateListing from "@/pages/CreateListing"
 import Invite from "@/pages/Invite"
 import ListingDetails from "@/pages/ListingDetails"
+import EditListing from "@/pages/EditListing"
 
 function Landing() {
   const { signInWithGoogle, user, loading } = useAuth()
@@ -40,6 +41,7 @@ function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/listings/new" element={<CreateListing />} />
             <Route path="/listings/:id" element={<ListingDetails />} />
+            <Route path="/listings/:id/edit" element={<EditListing />} />
             <Route path="/invite" element={<Invite />} />
           </Route>
         </Routes>

@@ -35,6 +35,7 @@ export class ListingRepository {
             category: listings.category,
             images: listings.images,
             createdAt: listings.createdAt,
+            userId: listings.userId,
             seller: {
                 name: users.name,
                 avatarUrl: users.avatarUrl,
@@ -56,5 +57,28 @@ export class ListingRepository {
 
     static async findByUserId(userId: string) {
         return await db.select().from(listings).where(eq(listings.userId, userId));
+    }
+
+    static async findById(id: number) {
+        return await db.select().from(listings).where(eq(listings.id, id)).limit(1);
+    }
+
+    static async update(id: number, userId: string, data: Partial<CreateListingDTO>) {
+        return await db.update(listings)
+            .set(data)
+            .where(and(
+                eq(listings.id, id),
+                eq(listings.userId, userId) // Ensure ownership
+            ))
+            .returning();
+    }
+
+    static async delete(id: number, userId: string) {
+        return await db.delete(listings)
+            .where(and(
+                eq(listings.id, id),
+                eq(listings.userId, userId) // Ensure ownership
+            ))
+            .returning();
     }
 }

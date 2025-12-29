@@ -24,23 +24,12 @@ type Listing = {
 export default function ListingDetails() {
     const { id } = useParams()
     const navigate = useNavigate()
-    const { session } = useAuth()
+    const { session, user } = useAuth()
     const [listing, setListing] = useState<Listing | null>(null)
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
-        // Note: We need a backend endpoint for fetching a single listing.
-        // Assuming GET /api/listings/:id exists or we filter client side (not ideal but works for array MVP)
-        // Actually, let's assume we need to add GET /api/listings/:id to the backend or use the existing list.
-        // The current backend only has findAll.
-        // For now, I'll fetch all and find (TEMPORARY MVP LOGIC) to save backend roundtrips if cached, 
-        // or arguably we should add a specific endpoint. 
-        // Given the task scope, let's fetch all and filter for now to move fast, or add the endpoint. 
-        // Adding the endpoint is cleaner. Let's assume I'll add the endpoint next step.
-
         if (session?.access_token && id) {
-            // Mocking single fetch by fetching all for now to avoid blocking on backend dev (unless I switch context)
-            // Ideally: fetch(`${import.meta.env.VITE_API_URL}/api/listings/${id}`)
             fetch(`${import.meta.env.VITE_API_URL}/api/listings`, {
                 headers: { 'Authorization': `Bearer ${session.access_token}` }
             })
@@ -53,8 +42,28 @@ export default function ListingDetails() {
         }
     }, [id, session])
 
+    const handleDelete = async () => {
+        if (!listing || !confirm('Are you sure you want to delete this listing?')) return
+        try {
+            const res = await fetch(`${import.meta.env.VITE_API_URL}/api/listings/${listing.id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${session?.access_token}` }
+            })
+            if (res.ok) {
+                navigate('/dashboard')
+            } else {
+                alert('Failed to delete listing')
+            }
+        } catch (e) {
+            console.error(e)
+            alert('Error deleting listing')
+        }
+    }
+
     if (loading) return <div className="flex h-screen items-center justify-center"><Loader2 className="animate-spin" /></div>
     if (!listing) return <div className="p-8">Listing not found</div>
+
+    const isOwner = user?.id === listing.userId
 
     return (
         <div className="min-h-screen bg-background p-4 md:p-8 max-w-4xl mx-auto">
@@ -91,8 +100,18 @@ export default function ListingDetails() {
                         <p className="whitespace-pre-wrap">{listing.description}</p>
                     </div>
 
-                    {/* <Button size="lg" className="w-full">Make an Offer</Button> */}
-                    <OfferModal listingId={listing.id} ListingTitle={listing.title} />
+                    {isOwner ? (
+                        <div className="flex gap-3">
+                            <Button variant="outline" className="flex-1" onClick={() => navigate(`/listings/${listing.id}/edit`)}>
+                                Edit Listing
+                            </Button>
+                            <Button variant="destructive" className="flex-1" onClick={handleDelete}>
+                                Delete
+                            </Button>
+                        </div>
+                    ) : (
+                        <OfferModal listingId={listing.id} ListingTitle={listing.title} />
+                    )}
                 </div>
             </div>
 

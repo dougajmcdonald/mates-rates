@@ -85,6 +85,39 @@ app.get('/api/listings', authMiddleware, async (c) => {
     }
 })
 
+app.put('/api/listings/:id', authMiddleware, async (c) => {
+    const user = c.get('user')
+    const id = Number(c.req.param('id'))
+    const data = await c.req.json()
+
+    try {
+        const updated = await ListingRepository.update(id, user.id, data)
+        if (updated.length === 0) {
+            return c.json({ error: 'Listing not found or unauthorized' }, 404)
+        }
+        return c.json({ listing: updated[0] })
+    } catch (e) {
+        console.error('Failed to update listing:', e)
+        return c.json({ error: 'Internal Server Error' }, 500)
+    }
+})
+
+app.delete('/api/listings/:id', authMiddleware, async (c) => {
+    const user = c.get('user')
+    const id = Number(c.req.param('id'))
+
+    try {
+        const deleted = await ListingRepository.delete(id, user.id)
+        if (deleted.length === 0) {
+            return c.json({ error: 'Listing not found or unauthorized' }, 404)
+        }
+        return c.json({ success: true })
+    } catch (e) {
+        console.error('Failed to delete listing:', e)
+        return c.json({ error: 'Internal Server Error' }, 500)
+    }
+})
+
 app.get('/api/listings/:id/messages', authMiddleware, async (c) => {
     const id = Number(c.req.param('id'))
     try {
