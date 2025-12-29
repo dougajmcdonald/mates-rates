@@ -112,4 +112,28 @@ app.post('/api/accept-invite', authMiddleware, async (c) => {
     }
 })
 
+// Health check (no auth, no db)
+app.get('/api/health', (c) => c.json({ status: 'ok', time: new Date().toISOString() }))
+
+// Improved CORS for debugging
+app.use('/*', cors({
+    origin: (origin) => {
+        const allowedOrigin = (process.env.FRONTEND_URL || 'http://localhost:5173').replace(/\/$/, '')
+
+        // Debugging: Allow matching origin if it looks correct (ignoring some nuances) or return valid one
+        if (!origin) return allowedOrigin;
+        if (origin === allowedOrigin) return allowedOrigin;
+
+        // Return request origin if it matches allowed origin (prevent mismatch)
+        if (origin.startsWith(allowedOrigin)) return origin;
+
+        return allowedOrigin;
+    },
+    allowMethods: ['POST', 'GET', 'OPTIONS'],
+    allowHeaders: ['Content-Type', 'Authorization'],
+    exposeHeaders: ['Content-Length', 'X-Kuma-Revision'],
+    maxAge: 600,
+    credentials: true,
+}))
+
 export default app
