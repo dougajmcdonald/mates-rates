@@ -11,12 +11,6 @@ dotenv.config()
 
 const app = new Hono<{ Variables: { user: any } }>()
 
-// Re-add Logger for debugging 404s
-app.use('*', async (c, next) => {
-    console.log(`[${new Date().toISOString()}] ${c.req.method} ${c.req.path}`)
-    await next()
-})
-
 app.use('/*', cors({
     origin: (process.env.FRONTEND_URL || 'http://localhost:5173').replace(/\/$/, ''),
     allowMethods: ['POST', 'GET', 'OPTIONS'],
