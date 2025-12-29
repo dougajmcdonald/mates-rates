@@ -21,7 +21,7 @@ import { Loader2 } from "lucide-react"
 // recreating the Stripe object on every render.
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY)
 
-function CheckoutForm({ clientSecret, onSuccess }: { clientSecret: string, onSuccess: () => void }) {
+function CheckoutForm({ onSuccess }: { onSuccess: () => void }) {
     const stripe = useStripe()
     const elements = useElements()
     const [message, setMessage] = useState<string | null>(null)
@@ -119,7 +119,7 @@ export function PaymentModal({ offerId, amount, listingTitle }: { offerId: numbe
                 {loading && <div className="flex justify-center p-8"><Loader2 className="animate-spin" /></div>}
                 {!loading && clientSecret && (
                     <Elements options={{ clientSecret, appearance: { theme: 'stripe' } }} stripe={stripePromise}>
-                        <CheckoutForm clientSecret={clientSecret} onSuccess={() => {
+                        <CheckoutForm onSuccess={() => {
                             alert("Payment Successful! Item matches are yours!")
                             setOpen(false)
                             // Ideally refresh parent

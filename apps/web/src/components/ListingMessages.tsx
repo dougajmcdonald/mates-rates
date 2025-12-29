@@ -15,7 +15,7 @@ type Message = {
 }
 
 export function ListingMessages({ listingId }: { listingId: number }) {
-    const { session, user } = useAuth()
+    const { session } = useAuth()
     const [messages, setMessages] = useState<Message[]>([])
     const [newMessage, setNewMessage] = useState("")
     const [loading, setLoading] = useState(true)

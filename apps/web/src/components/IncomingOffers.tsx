@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { useAuth } from "@/context/AuthContext"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Loader2, Check, X } from "lucide-react"
+import { Check, X } from "lucide-react"
 
 type Offer = {
     id: number
