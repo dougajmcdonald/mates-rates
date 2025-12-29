@@ -11,24 +11,25 @@ dotenv.config()
 
 const app = new Hono<{ Variables: { user: any } }>()
 
-app.use('*', async (c, next) => {
-    console.log(`[${new Date().toISOString()}] ${c.req.method} ${c.req.path}`)
-    console.log('Headers:', c.req.header())
-    await next()
-})
-
-app.options('*', (c) => {
-    return c.text('', 204)
-})
-
+// Improved CORS for debugging - PERMISSIVE MODE
 app.use('/*', cors({
-    origin: (process.env.FRONTEND_URL || 'http://localhost:5173').replace(/\/$/, ''),
-    allowMethods: ['POST', 'GET', 'OPTIONS'],
+    origin: (origin) => {
+        // DEBUG: Allow ALL origins by reflecting the origin back.
+        // This validates if the issue is just URL matching.
+        return origin || process.env.FRONTEND_URL || 'http://localhost:5173';
+    },
+    allowMethods: ['POST', 'GET', 'OPTIONS', 'PUT', 'DELETE', 'PATCH', 'HEAD'],
     allowHeaders: ['Content-Type', 'Authorization'],
     exposeHeaders: ['Content-Length', 'X-Kuma-Revision'],
     maxAge: 600,
     credentials: true,
 }))
+
+app.use('*', async (c, next) => {
+    console.log(`[${new Date().toISOString()}] ${c.req.method} ${c.req.path}`)
+    console.log('Headers:', c.req.header())
+    await next()
+})
 
 app.get('/', (c) => {
     return c.text('Hello Mates Rates!')
@@ -125,18 +126,6 @@ app.post('/api/accept-invite', authMiddleware, async (c) => {
 // Health check (no auth, no db)
 app.get('/api/health', (c) => c.json({ status: 'ok', time: new Date().toISOString() }))
 
-// Improved CORS for debugging - PERMISSIVE MODE
-app.use('/*', cors({
-    origin: (origin) => {
-        // DEBUG: Allow ALL origins by reflecting the origin back.
-        // This validates if the issue is just URL matching.
-        return origin || process.env.FRONTEND_URL || 'http://localhost:5173';
-    },
-    allowMethods: ['POST', 'GET', 'OPTIONS'],
-    allowHeaders: ['Content-Type', 'Authorization'],
-    exposeHeaders: ['Content-Length', 'X-Kuma-Revision'],
-    maxAge: 600,
-    credentials: true,
-}))
+
 
 export default app
