@@ -11,11 +11,16 @@ dotenv.config()
 
 const app = new Hono<{ Variables: { user: any } }>()
 
-// Improved CORS for debugging - PERMISSIVE MODE
+// 1. Logger (First to capture everything)
+app.use('*', async (c, next) => {
+    console.log(`[${new Date().toISOString()}] ${c.req.method} ${c.req.path}`)
+    console.log('Headers:', c.req.header())
+    await next()
+})
+
+// 2. CORS (Permissive Mode)
 app.use('/*', cors({
     origin: (origin) => {
-        // DEBUG: Allow ALL origins by reflecting the origin back.
-        // This validates if the issue is just URL matching.
         return origin || process.env.FRONTEND_URL || 'http://localhost:5173';
     },
     allowMethods: ['POST', 'GET', 'OPTIONS', 'PUT', 'DELETE', 'PATCH', 'HEAD'],
@@ -24,12 +29,6 @@ app.use('/*', cors({
     maxAge: 600,
     credentials: true,
 }))
-
-app.use('*', async (c, next) => {
-    console.log(`[${new Date().toISOString()}] ${c.req.method} ${c.req.path}`)
-    console.log('Headers:', c.req.header())
-    await next()
-})
 
 app.get('/', (c) => {
     return c.text('Hello Mates Rates!')
