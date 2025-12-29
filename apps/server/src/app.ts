@@ -12,7 +12,7 @@ dotenv.config()
 const app = new Hono<{ Variables: { user: any } }>()
 
 app.use('/*', cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+    origin: (process.env.FRONTEND_URL || 'http://localhost:5173').replace(/\/$/, ''),
     allowMethods: ['POST', 'GET', 'OPTIONS'],
     allowHeaders: ['Content-Type', 'Authorization'],
     exposeHeaders: ['Content-Length', 'X-Kuma-Revision'],
