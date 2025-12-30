@@ -8,6 +8,10 @@ import CreateListing from "@/pages/CreateListing"
 import Invite from "@/pages/Invite"
 import ListingDetails from "@/pages/ListingDetails"
 import EditListing from "@/pages/EditListing"
+import Account from "@/pages/Account"
+import { Layout } from "@/components/Layout"
+import MyMates from "@/pages/MyMates"
+import MateListings from "@/pages/MateListings"
 
 function Landing() {
   const { signInWithGoogle, user, loading } = useAuth()
@@ -38,11 +42,16 @@ function App() {
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route element={<ProtectedRoute />}>
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/listings/new" element={<CreateListing />} />
-            <Route path="/listings/:id" element={<ListingDetails />} />
-            <Route path="/listings/:id/edit" element={<EditListing />} />
-            <Route path="/invite" element={<Invite />} />
+            <Route element={<Layout />}>
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/listings/new" element={<CreateListing />} />
+              <Route path="/listings/:id" element={<ListingDetails />} />
+              <Route path="/listings/:id/edit" element={<EditListing />} />
+              <Route path="/invite" element={<Invite />} />
+              <Route path="/account" element={<Account />} />
+              <Route path="/mates" element={<MyMates />} />
+              <Route path="/mates/:id" element={<MateListings />} />
+            </Route>
           </Route>
         </Routes>
       </BrowserRouter>

@@ -28,9 +28,8 @@ export default function EditListing() {
     const navigate = useNavigate()
     const [uploading, setUploading] = useState(false)
     const [loading, setLoading] = useState(true)
-    const [selectedImage, setSelectedImage] = useState<File | null>(null)
-    // For simplicity, we just keep existing images if no new one is uploaded, 
-    // or replace if one is uploaded (MVP)
+    const [selectedImages, setSelectedImages] = useState<File[]>([])
+    const [previews, setPreviews] = useState<string[]>([])
     const [existingImages, setExistingImages] = useState<string[]>([])
 
     const { register, handleSubmit, setValue, formState: { errors, isSubmitting } } = useForm<z.infer<typeof formSchema>>({
@@ -74,26 +73,28 @@ export default function EditListing() {
 
     const onSubmit = async (values: z.infer<typeof formSchema>) => {
         try {
-            let imageUrls: string[] = existingImages
+            setUploading(true)
+            let imageUrls: string[] = [...existingImages]
 
-            if (selectedImage) {
-                setUploading(true)
-                const fileExt = selectedImage.name.split('.').pop()
-                const fileName = `${Math.random()}.${fileExt}`
-                const filePath = `${fileName}`
+            if (selectedImages.length > 0) {
+                // Upload new images
+                const uploadPromises = selectedImages.map(async (file) => {
+                    const fileExt = file.name.split('.').pop()
+                    const fileName = `${Math.random()}.${fileExt}`
+                    const filePath = `${fileName}`
 
-                const { error: uploadError } = await supabase.storage
-                    .from('listings')
-                    .upload(filePath, selectedImage)
+                    const { error: uploadError } = await supabase.storage
+                        .from('listings')
+                        .upload(filePath, file)
 
-                if (uploadError) {
-                    throw uploadError
-                }
+                    if (uploadError) throw uploadError
 
-                const { data } = supabase.storage.from('listings').getPublicUrl(filePath)
-                // For MVP, replacing images if new one uploaded. Could append.
-                imageUrls = [data.publicUrl]
-                setUploading(false)
+                    const { data } = supabase.storage.from('listings').getPublicUrl(filePath)
+                    return data.publicUrl
+                })
+
+                const newUrls = await Promise.all(uploadPromises)
+                imageUrls = [...imageUrls, ...newUrls]
             }
 
             // Update listing on backend
@@ -116,7 +117,37 @@ export default function EditListing() {
         } catch (error) {
             console.error(error)
             alert('Error updating listing')
+        } finally {
             setUploading(false)
+        }
+    }
+
+    const removeExistingImage = (index: number) => {
+        setExistingImages(prev => prev.filter((_, i) => i !== index))
+    }
+
+    const removeSelectedImage = (index: number) => {
+        setSelectedImages(prev => prev.filter((_, i) => i !== index))
+        setPreviews(prev => {
+            URL.revokeObjectURL(prev[index])
+            return prev.filter((_, i) => i !== index)
+        })
+    }
+
+    const onSelectImages = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files) {
+            const filesArray = Array.from(e.target.files)
+            const currentTotal = existingImages.length + selectedImages.length
+
+            if (currentTotal + filesArray.length > 10) {
+                alert(`You can only have a maximum of 10 images. You currently have ${currentTotal} and are trying to add ${filesArray.length}.`)
+                return
+            }
+
+            setSelectedImages(prev => [...prev, ...filesArray])
+
+            const newPreviews = filesArray.map(file => URL.createObjectURL(file))
+            setPreviews(prev => [...prev, ...newPreviews])
         }
     }
 
@@ -160,23 +191,65 @@ export default function EditListing() {
                             </div>
                         </div>
 
-                        <div className="space-y-2">
-                            <label htmlFor="image" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Image (Upload to replace)</label>
+                        <div className="space-y-4">
+                            <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Images (Max 10)</label>
+
+                            {/* Existing Images */}
                             {existingImages.length > 0 && (
-                                <div className="mb-2">
-                                    <img src={existingImages[0]} alt="Current" className="h-20 w-20 object-cover rounded" />
+                                <div>
+                                    <p className="text-xs text-muted-foreground mb-2">Existing Images</p>
+                                    <div className="grid grid-cols-3 gap-4">
+                                        {existingImages.map((src, index) => (
+                                            <div key={`existing-${index}`} className="relative aspect-square w-full overflow-hidden rounded-md border">
+                                                <img src={src} alt={`Existing ${index}`} className="h-full w-full object-cover" />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => removeExistingImage(index)}
+                                                    className="absolute top-1 right-1 h-6 w-6 rounded-full bg-red-500 text-white flex items-center justify-center text-xs hover:bg-red-600 focus:outline-none"
+                                                >
+                                                    X
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
                             )}
-                            <Input
-                                id="image"
-                                type="file"
-                                accept="image/*"
-                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                                    if (e.target.files?.[0]) {
-                                        setSelectedImage(e.target.files[0])
-                                    }
-                                }}
-                            />
+
+                            {/* New Uploads */}
+                            <div>
+                                <Input
+                                    id="image"
+                                    type="file"
+                                    accept="image/*"
+                                    multiple
+                                    onChange={onSelectImages}
+                                    disabled={existingImages.length + selectedImages.length >= 10}
+                                />
+                                <p className="text-xs text-muted-foreground mt-1">
+                                    {existingImages.length + selectedImages.length}/10 images total
+                                </p>
+                            </div>
+
+                            {/* Previews of New Images */}
+                            {previews.length > 0 && (
+                                <div>
+                                    <p className="text-xs text-muted-foreground mb-2">New Images</p>
+                                    <div className="grid grid-cols-3 gap-4">
+                                        {previews.map((src, index) => (
+                                            <div key={`new-${index}`} className="relative aspect-square w-full overflow-hidden rounded-md border">
+                                                <img src={src} alt={`Preview ${index}`} className="h-full w-full object-cover" />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => removeSelectedImage(index)}
+                                                    className="absolute top-1 right-1 h-6 w-6 rounded-full bg-red-500 text-white flex items-center justify-center text-xs hover:bg-red-600 focus:outline-none"
+                                                >
+                                                    X
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
                         <Button type="submit" className="w-full" disabled={isSubmitting || uploading}>

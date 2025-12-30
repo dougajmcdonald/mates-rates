@@ -303,6 +303,31 @@ app.post('/api/accept-invite', authMiddleware, async (c) => {
     }
 })
 
+app.get('/api/mates', authMiddleware, async (c) => {
+    const user = c.get('user')
+    try {
+        const mates = await SocialRepository.getFriendsWithStats(user.id)
+        return c.json({ mates })
+    } catch (error) {
+        console.error('Failed to fetch mates:', error)
+        return c.json({ error: 'Internal Server Error' }, 500)
+    }
+})
+
+app.get('/api/users/:id/listings', authMiddleware, async (c) => {
+    const id = c.req.param('id')
+    try {
+        // Reuse ListingRepository.findByUserId
+        // But we probably want to filter by active status if it's public facing
+        // For now, let's grab all and maybe filter in repo or here
+        const items = await ListingRepository.findByUserId(id)
+        return c.json({ listings: items })
+    } catch (error) {
+        console.error('Failed to fetch user listings:', error)
+        return c.json({ error: 'Internal Server Error' }, 500)
+    }
+})
+
 // Health check (no auth, no db)
 app.get('/api/health', (c) => c.json({ status: 'ok', time: new Date().toISOString() }))
 

@@ -72,7 +72,7 @@ function CheckoutForm({ onSuccess }: { onSuccess: () => void }) {
     )
 }
 
-export function PaymentModal({ offerId, amount, listingTitle }: { offerId: number, amount: number, listingTitle: string }) {
+export function PaymentModal({ offerId, amount, listingTitle, trigger }: { offerId: number, amount: number, listingTitle: string, trigger?: React.ReactNode }) {
     const { session } = useAuth()
     const [clientSecret, setClientSecret] = useState("")
     const [open, setOpen] = useState(false)
@@ -110,7 +110,9 @@ export function PaymentModal({ offerId, amount, listingTitle }: { offerId: numbe
             if (val && !clientSecret) initializePayment()
         }}>
             <DialogTrigger asChild>
-                <Button size="sm" className="bg-green-600 hover:bg-green-700">Pay £{(amount / 100).toFixed(2)}</Button>
+                {trigger ? trigger : (
+                    <Button size="sm" className="bg-green-600 hover:bg-green-700">Pay £{(amount / 100).toFixed(2)}</Button>
+                )}
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>

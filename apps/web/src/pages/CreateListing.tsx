@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -26,39 +26,71 @@ export default function CreateListing() {
   const { session } = useAuth()
   const navigate = useNavigate()
   const [uploading, setUploading] = useState(false)
-  const [selectedImage, setSelectedImage] = useState<File | null>(null)
-
-  // NOTE: Manually installing shadcn form component logic here as 'pnpm dlx shadcn add form' can be complex in agent mode
-  // Using standard react-hook-form manually with shadcn UI components instead of full shadcn Form wrapper to save time,
-  // but let's try to use the hook form properly.
-  // actually, let's just use raw form for simplicity + shadcn primitives
+  const [selectedImages, setSelectedImages] = useState<File[]>([])
+  const [previews, setPreviews] = useState<string[]>([])
 
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
   })
 
+  // Clean up previews on unmount
+  useEffect(() => {
+    return () => {
+      previews.forEach(url => URL.revokeObjectURL(url))
+    }
+  }, [previews])
+
+  const onSelectImages = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const filesArray = Array.from(e.target.files)
+
+      if (selectedImages.length + filesArray.length > 10) {
+        alert("You can only upload a maximum of 10 images.")
+        return
+      }
+
+      setSelectedImages(prev => [...prev, ...filesArray])
+
+      const newPreviews = filesArray.map(file => URL.createObjectURL(file))
+      setPreviews(prev => [...prev, ...newPreviews])
+    }
+  }
+
+  const removeImage = (index: number) => {
+    setSelectedImages(prev => prev.filter((_, i) => i !== index))
+    setPreviews(prev => {
+      URL.revokeObjectURL(prev[index])
+      return prev.filter((_, i) => i !== index)
+    })
+  }
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
+      if (selectedImages.length === 0) {
+        // Optional: Require at least one image? existing code didn't strictly require it but UI implied it.
+        // Let's allow no image for now or maybe existing logic didn't block it.
+      }
+
+      setUploading(true)
       let imageUrls: string[] = []
 
-      if (selectedImage) {
-        setUploading(true)
-        const fileExt = selectedImage.name.split('.').pop()
+      // Upload all images
+      const uploadPromises = selectedImages.map(async (file) => {
+        const fileExt = file.name.split('.').pop()
         const fileName = `${Math.random()}.${fileExt}`
         const filePath = `${fileName}`
 
         const { error: uploadError } = await supabase.storage
           .from('listings')
-          .upload(filePath, selectedImage)
+          .upload(filePath, file)
 
-        if (uploadError) {
-          throw uploadError
-        }
+        if (uploadError) throw uploadError
 
         const { data } = supabase.storage.from('listings').getPublicUrl(filePath)
-        imageUrls.push(data.publicUrl)
-        setUploading(false)
-      }
+        return data.publicUrl
+      })
+
+      imageUrls = await Promise.all(uploadPromises)
 
       // Create listing on backend
       const response = await fetch(`${import.meta.env.VITE_API_URL}/api/listings`, {
@@ -80,6 +112,7 @@ export default function CreateListing() {
     } catch (error) {
       console.error(error)
       alert('Error creating listing')
+    } finally {
       setUploading(false)
     }
   }
@@ -119,17 +152,37 @@ export default function CreateListing() {
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="image" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Image</label>
+              <label htmlFor="image" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Images (Max 10)</label>
               <Input
                 id="image"
                 type="file"
                 accept="image/*"
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                  if (e.target.files?.[0]) {
-                    setSelectedImage(e.target.files[0])
-                  }
-                }}
+                multiple
+                onChange={onSelectImages}
+                disabled={selectedImages.length >= 10}
               />
+              <p className="text-xs text-muted-foreground">{selectedImages.length}/10 images selected</p>
+
+              {previews.length > 0 && (
+                <div className="grid grid-cols-3 gap-4 mt-4">
+                  {previews.map((src, index) => (
+                    <div key={index} className="relative aspect-square w-full overflow-hidden rounded-md border">
+                      <img
+                        src={src}
+                        alt={`Preview ${index}`}
+                        className="h-full w-full object-cover"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeImage(index)}
+                        className="absolute top-1 right-1 h-6 w-6 rounded-full bg-red-500 text-white flex items-center justify-center text-xs hover:bg-red-600 focus:outline-none"
+                      >
+                        X
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             <Button type="submit" className="w-full" disabled={isSubmitting || uploading}>

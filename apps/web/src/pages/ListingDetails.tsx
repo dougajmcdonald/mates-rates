@@ -5,6 +5,13 @@ import { Button } from "@/components/ui/button"
 import { Loader2, ArrowLeft } from "lucide-react"
 import { ListingMessages } from "@/components/ListingMessages"
 import { OfferModal } from "@/components/OfferModal"
+import {
+    Carousel,
+    CarouselContent,
+    CarouselItem,
+    CarouselNext,
+    CarouselPrevious,
+} from "@/components/ui/carousel"
 
 type Listing = {
     id: number
@@ -73,12 +80,30 @@ export default function ListingDetails() {
 
             <div className="grid md:grid-cols-2 gap-8">
                 <div>
-                    {listing.images && listing.images[0] ? (
-                        <img
-                            src={listing.images[0]}
-                            alt={listing.title}
-                            className="w-full rounded-lg object-cover shadow-sm aspect-square"
-                        />
+                    {listing.images && listing.images.length > 0 ? (
+                        <div className="w-full">
+                            <Carousel className="w-full">
+                                <CarouselContent>
+                                    {listing.images.map((image: string, index: number) => (
+                                        <CarouselItem key={index}>
+                                            <div className="aspect-square w-full overflow-hidden rounded-lg bg-muted">
+                                                <img
+                                                    src={image}
+                                                    alt={`${listing.title} ${index + 1}`}
+                                                    className="h-full w-full object-cover"
+                                                />
+                                            </div>
+                                        </CarouselItem>
+                                    ))}
+                                </CarouselContent>
+                                {listing.images.length > 1 && (
+                                    <>
+                                        <CarouselPrevious className="left-2" />
+                                        <CarouselNext className="right-2" />
+                                    </>
+                                )}
+                            </Carousel>
+                        </div>
                     ) : (
                         <div className="w-full aspect-square bg-muted rounded-lg flex items-center justify-center text-muted-foreground">
                             No Image

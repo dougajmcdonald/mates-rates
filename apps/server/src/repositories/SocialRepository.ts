@@ -38,4 +38,34 @@ export class SocialRepository {
             .innerJoin(users, eq(userRelations.friendId, users.id))
             .where(eq(userRelations.userId, userId));
     }
+
+    static async getFriendsWithStats(userId: string) {
+        // Fetch friends first
+        const friends = await this.getFriends(userId);
+
+        // For each friend, count their active listings
+        // optimize: could be a join, but map is easier for now with Drizzle optional helpers
+        // actually, let's just loop for MVP or do a group by
+
+        const friendsWithStats = await Promise.all(friends.map(async (friend) => {
+            // We can use db.execute or specific count query
+            // Let's use the listings table import
+            const { listings } = await import('../db/schema');
+            const { count } = await import('drizzle-orm');
+
+            const result = await db.select({ count: count() })
+                .from(listings)
+                .where(and(
+                    eq(listings.userId, friend.id),
+                    eq(listings.status, 'active')
+                ));
+
+            return {
+                ...friend,
+                listingCount: result[0].count
+            };
+        }));
+
+        return friendsWithStats;
+    }
 }
