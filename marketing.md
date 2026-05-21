@@ -98,27 +98,36 @@ Warm, honest, slightly wry. You're a parent or homeowner who's been burned befor
 ---
 
 **Day 8 (Monday)**
-> Controversial opinion: selling kids' stuff on Marketplace is actually fine — until you do it and realise a stranger is coming to your house to buy your child's old bed.
+> Prams are weird to buy second-hand.
 >
-> The whole experience made me uncomfortable in a way I couldn't quite articulate.
+> Not because there's anything wrong with it. But because you're spending £400–£800 on something your baby is going to be in every single day, and you have zero idea how it's actually been treated.
 >
-> Selling to people you know just feels... different.
+> Has it been folded properly? Stored dry? Were the brakes ever stuck? Was it dropped?
+>
+> You don't ask these questions to a stranger. You do to a friend.
+>
+> "Yeah it's been brilliant, Hannah used it for two years, stored in the garage since — it's genuinely perfect."
+>
+> That sentence is worth more than any Marketplace description. And you only get it from someone you trust.
+
+*[Image: pram in hallway, or just text — the relatability does the work]*
 
 ---
 
 **Day 10 (Wednesday)**
-> The problem with WhatsApp selling groups:
+> Selling a car privately is a special kind of hell.
 >
-> 💬 Someone posts a pram at 7am
-> 💬 46 replies asking if it's still available
-> 💬 Photo requests at all hours
-> 💬 The chat is now unusable for actual conversation
+> You price it fairly. You write a detailed description. You get 30 messages, 12 questions each, and book in 4 viewings.
 >
-> You eventually just mute it and miss the good stuff.
+> Two don't show. One shows up and has clearly never bought a car before. One offers you £800 less than the asking price and acts offended when you say no.
 >
-> What's your experience been? Has anyone actually found WhatsApp groups useful for buying/selling?
+> You repeat this for 6 weeks.
+>
+> The one thing that changes everything: someone who knows you, or knows someone who knows you, comes to look at it. They've heard you're a straight-shooter. You've heard they're serious. The test drive takes 15 minutes. They're handing over cash by the end of the afternoon.
+>
+> Qualified leads. Not 40 randoms.
 
-*[Engagement post — ask for comments]*
+*[Text post — high share potential in car owner groups and community pages]*
 
 ---
 
@@ -309,15 +318,19 @@ Warm, honest, slightly wry. You're a parent or homeowner who's been burned befor
 ---
 
 **Day 33 (Wednesday)**
-> A lot of people ask: what happens with big items? Sofas, wardrobes, bikes, kids' beds?
+> Bulky items have a problem that has nothing to do with the item itself.
 >
-> These are exactly what Mates Rates is designed for.
+> Posting isn't an option. So it has to be local pickup.
 >
-> You're letting a stranger into your home to collect a large item. That stranger can see your hallway, your lounge, what car you drive.
+> And local pickup means: someone is coming to your house, they need a van or a big car, they need to coordinate a time, and if they don't show — you've wasted your whole afternoon.
 >
-> With Mates Rates, it's someone from your circle. Your mate's colleague. Your neighbour's friend. Someone with a face and a name and mutual accountability.
+> That equation changes completely when it's someone in your circle.
 >
-> It's a small thing. But it doesn't feel small when it's your front door.
+> They're already local (mutual friends, same area, same school, same workplace). They have accountability — someone they know introduced them. And they turn up, because not turning up has social consequences.
+>
+> Bulky items are the #1 use case for Mates Rates. Sofa, wardrobe, dining table, kids' bed, chest freezer, lawnmower. The things you can't post and can't afford to have a stranger flake on.
+
+*[Image: any large item — bonus if it's actually something you're selling]*
 
 ---
 
@@ -331,6 +344,24 @@ Warm, honest, slightly wry. You're a parent or homeowner who's been burned befor
 > Your mate can share your listing with their circle. It stays private, still within a trusted network, just one level broader.
 >
 > You'd be surprised how often a mate of a mate is exactly the right buyer.
+
+---
+
+**Day 36 (Saturday)**
+> You've got a kids' microscope to sell.
+>
+> Your options:
+>
+> A) Post it in the general family WhatsApp and watch the chat go sideways
+> B) Create a new WhatsApp group specifically for "microscope for sale" (nobody does this but everyone has thought about it)
+> C) List it on Marketplace and deal with everything that comes with that
+> D) List it on Mates Rates and share the link *specifically* with your "School parents" group and your "NCT crew"
+>
+> Option D gets you a targeted audience who actually have kids the right age, with no noise in any chat, and no strangers.
+>
+> That's what Mates Rates is for — sending the right things to the right people, without broadcasting to everyone or creating a new group for every item.
+
+*[Works well as a text post — the A/B/C/D format is very shareable]*
 
 ---
 
@@ -573,12 +604,12 @@ Warm, honest, slightly wry. You're a parent or homeowner who's been burned befor
 >
 > Listings are great — but Mates Rates only really works when you've got people to share them with.
 >
-> Think about who in your life is most likely to want second-hand stuff:
+> Think about what you're selling and who's most likely to want it:
 >
-> - Your NCT group, school gate crowd, or parent WhatsApp
-> - Colleagues who know you're having a clear-out
-> - Neighbours — especially for large items that need local collection
-> - Any club, team, or social group you're part of
+> - **Kids' gear, prams, baby equipment** → NCT group, school gate WhatsApp, local parent friends. They trust your description in a way a stranger never would.
+> - **Bulky furniture or large items** → Neighbours, local friends, colleagues. Local-only anyway, so local-and-trusted is a huge upgrade.
+> - **Cars or high-value items** → Anyone in your wider circle. Pre-qualified buyers waste far less of your time than Marketplace.
+> - **Niche items** → Share the link with the specific group who'd care. Your "work friends" list for office stuff. Your sports club for gear. No noise in anyone's chat.
 >
 > You don't need a big list. Five people who trust you is worth more than fifty strangers.
 >
@@ -665,21 +696,23 @@ Warm, honest, slightly wry. You're a parent or homeowner who's been burned befor
 ---
 
 **Week 4 — Issue 4**
-**Subject:** Large items deserve better than Marketplace
+**Subject:** The items Mates Rates is best for
 
 > Hi,
 >
-> I want to talk about sofas, wardrobes, dining tables, kids' beds.
+> A few specific use cases that Mates Rates handles better than anything else:
 >
-> These are the items that make Marketplace genuinely uncomfortable. You're letting a stranger into your living space. They're coming to your home address. They need to bring a van and possibly a friend.
+> **Large items** — sofas, wardrobes, dining tables, kids' beds. Posting isn't an option, so it has to be local collection. Someone in your trusted circle is already local and has social accountability. They show up.
 >
-> Mates Rates was built with these items in mind.
+> **Expensive items** — prams, car seats, quality furniture. Buyers won't trust a stranger's description, but they'll trust yours. "It's been brilliant, we kept it dry, here's everything that came with it" means something when it comes from someone they know.
 >
-> Selling large items to someone in your trusted circle is just *better*. There's accountability on both sides. They show up because they know someone who knows you. You hand it over comfortably.
+> **Cars and high-value items** — Marketplace for cars is 90% time wasters. A buyer who comes via someone you know is pre-qualified. They're serious, they've done their research, and the transaction takes an afternoon not six weeks.
 >
-> If you've got large items to move — this is the right tool.
+> **Niche items** — instead of creating a WhatsApp group for one item, list it and share the link with the specific group of people who'd actually want it. Your "school parents" circle for kids' gear. Your "work friends" for office equipment. Right item, right audience, no noise.
 >
-> → [List your large items](https://mates-rates.org/listings/new)
+> If any of these apply to what you've got — list it this week.
+>
+> → [List your items](https://mates-rates.org/listings/new)
 >
 > Doug
 
