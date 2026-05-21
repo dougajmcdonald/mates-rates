@@ -131,6 +131,28 @@
   }
 }
 
+/* Shared form field — focus border handled in CSS to avoid react-hook-form onBlur conflicts */
+.form-field {
+  width: 100%;
+  background-color: #ffffff;
+  border: 1px solid #dddddd;
+  border-radius: 8px;
+  padding: 0 12px;
+  font-size: 16px;
+  color: #222222;
+  outline: none;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+.form-field:focus {
+  border: 2px solid #222222;
+}
+
+.form-field::placeholder {
+  color: #929292;
+}
+
 /* Design-system shadow tier — the one elevation used in the entire system */
 .shadow-card-hover {
   box-shadow:

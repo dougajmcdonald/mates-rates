@@ -1,6 +1,5 @@
 import { useState } from "react"
 import { useAuth } from "@/context/AuthContext"
-import { Button } from "@/components/ui/button"
 import {
     Dialog,
     DialogContent,
@@ -10,7 +9,6 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
 import { Loader2 } from "lucide-react"
 
 export function OfferModal({ listingId, ListingTitle }: { listingId: number, ListingTitle: string }) {

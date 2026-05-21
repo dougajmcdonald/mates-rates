@@ -14,19 +14,6 @@ const formSchema = z.object({
     category: z.string().min(1, "Category is required"),
 })
 
-const fieldStyle: React.CSSProperties = {
-    width: "100%",
-    height: 56,
-    backgroundColor: "#ffffff",
-    border: "1px solid #dddddd",
-    borderRadius: 8,
-    padding: "0 12px",
-    fontSize: 16,
-    color: "#222222",
-    outline: "none",
-    boxSizing: "border-box",
-}
-
 const labelStyle: React.CSSProperties = {
     display: "block",
     fontSize: 14,
@@ -180,9 +167,8 @@ export default function EditListing() {
                     <input
                         id="title"
                         placeholder="Vintage lamp, old bike…"
-                        style={fieldStyle}
-                        onFocus={(e) => (e.currentTarget.style.border = "2px solid #222222")}
-                        onBlur={(e) => (e.currentTarget.style.border = "1px solid #dddddd")}
+                        className="form-field"
+                        style={{ height: 56 }}
                         {...register("title")}
                     />
                     {errors.title && <p style={errorStyle}>{errors.title.message}</p>}
@@ -194,15 +180,8 @@ export default function EditListing() {
                         id="description"
                         placeholder="Great condition, barely used…"
                         rows={4}
-                        style={{
-                            ...fieldStyle,
-                            height: "auto",
-                            padding: "14px 12px",
-                            resize: "vertical",
-                            fontFamily: "inherit",
-                        }}
-                        onFocus={(e) => (e.currentTarget.style.border = "2px solid #222222")}
-                        onBlur={(e) => (e.currentTarget.style.border = "1px solid #dddddd")}
+                        className="form-field"
+                        style={{ padding: "14px 12px", resize: "vertical" }}
                         {...register("description")}
                     />
                     {errors.description && <p style={errorStyle}>{errors.description.message}</p>}
@@ -216,9 +195,8 @@ export default function EditListing() {
                             step="0.01"
                             id="price"
                             placeholder="0.00"
-                            style={fieldStyle}
-                            onFocus={(e) => (e.currentTarget.style.border = "2px solid #222222")}
-                            onBlur={(e) => (e.currentTarget.style.border = "1px solid #dddddd")}
+                            className="form-field"
+                            style={{ height: 56 }}
                             {...register("price")}
                         />
                         {errors.price && <p style={errorStyle}>{errors.price.message}</p>}
@@ -228,9 +206,8 @@ export default function EditListing() {
                         <input
                             id="category"
                             placeholder="Furniture, electronics…"
-                            style={fieldStyle}
-                            onFocus={(e) => (e.currentTarget.style.border = "2px solid #222222")}
-                            onBlur={(e) => (e.currentTarget.style.border = "1px solid #dddddd")}
+                            className="form-field"
+                            style={{ height: 56 }}
                             {...register("category")}
                         />
                         {errors.category && <p style={errorStyle}>{errors.category.message}</p>}
