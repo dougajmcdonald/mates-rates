@@ -5,22 +5,42 @@ import { z } from "zod"
 import { useAuth } from "@/context/AuthContext"
 import { supabase } from "@/lib/supabase"
 import { useNavigate } from "react-router-dom"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
-import { Loader2 } from "lucide-react"
+import { Loader2, X } from "lucide-react"
 
 const formSchema = z.object({
-  title: z.string().min(2, {
-    message: "Title must be at least 2 characters.",
-  }),
-  description: z.string().min(10, {
-    message: "Description must be at least 10 characters.",
-  }),
+  title: z.string().min(2, { message: "Title must be at least 2 characters." }),
+  description: z.string().min(10, { message: "Description must be at least 10 characters." }),
   price: z.coerce.number().min(0, "Price must be positive"),
   category: z.string().min(1, "Category is required"),
 })
+
+const fieldStyle: React.CSSProperties = {
+  width: "100%",
+  height: 56,
+  backgroundColor: "#ffffff",
+  border: "1px solid #dddddd",
+  borderRadius: 8,
+  padding: "0 12px",
+  fontSize: 16,
+  color: "#222222",
+  outline: "none",
+  boxSizing: "border-box",
+}
+
+const labelStyle: React.CSSProperties = {
+  display: "block",
+  fontSize: 14,
+  fontWeight: 500,
+  color: "#222222",
+  marginBottom: 6,
+  lineHeight: 1.29,
+}
+
+const errorStyle: React.CSSProperties = {
+  fontSize: 13,
+  color: "#c13515",
+  marginTop: 4,
+}
 
 export default function CreateListing() {
   const { session } = useAuth()
@@ -33,32 +53,24 @@ export default function CreateListing() {
     resolver: zodResolver(formSchema),
   })
 
-  // Clean up previews on unmount
   useEffect(() => {
-    return () => {
-      previews.forEach(url => URL.revokeObjectURL(url))
-    }
+    return () => { previews.forEach((url) => URL.revokeObjectURL(url)) }
   }, [previews])
 
   const onSelectImages = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      const filesArray = Array.from(e.target.files)
-
-      if (selectedImages.length + filesArray.length > 10) {
-        alert("You can only upload a maximum of 10 images.")
-        return
-      }
-
-      setSelectedImages(prev => [...prev, ...filesArray])
-
-      const newPreviews = filesArray.map(file => URL.createObjectURL(file))
-      setPreviews(prev => [...prev, ...newPreviews])
+    if (!e.target.files) return
+    const filesArray = Array.from(e.target.files)
+    if (selectedImages.length + filesArray.length > 10) {
+      alert("You can only upload a maximum of 10 images.")
+      return
     }
+    setSelectedImages((prev) => [...prev, ...filesArray])
+    setPreviews((prev) => [...prev, ...filesArray.map((f) => URL.createObjectURL(f))])
   }
 
   const removeImage = (index: number) => {
-    setSelectedImages(prev => prev.filter((_, i) => i !== index))
-    setPreviews(prev => {
+    setSelectedImages((prev) => prev.filter((_, i) => i !== index))
+    setPreviews((prev) => {
       URL.revokeObjectURL(prev[index])
       return prev.filter((_, i) => i !== index)
     })
@@ -66,132 +78,191 @@ export default function CreateListing() {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      if (selectedImages.length === 0) {
-        // Optional: Require at least one image? existing code didn't strictly require it but UI implied it.
-        // Let's allow no image for now or maybe existing logic didn't block it.
-      }
-
       setUploading(true)
-      let imageUrls: string[] = []
-
-      // Upload all images
       const uploadPromises = selectedImages.map(async (file) => {
-        const fileExt = file.name.split('.').pop()
+        const fileExt = file.name.split(".").pop()
         const fileName = `${Math.random()}.${fileExt}`
-        const filePath = `${fileName}`
-
-        const { error: uploadError } = await supabase.storage
-          .from('listings')
-          .upload(filePath, file)
-
+        const { error: uploadError } = await supabase.storage.from("listings").upload(fileName, file)
         if (uploadError) throw uploadError
-
-        const { data } = supabase.storage.from('listings').getPublicUrl(filePath)
-        return data.publicUrl
+        return supabase.storage.from("listings").getPublicUrl(fileName).data.publicUrl
       })
+      const imageUrls = await Promise.all(uploadPromises)
 
-      imageUrls = await Promise.all(uploadPromises)
-
-      // Create listing on backend
       const response = await fetch(`${import.meta.env.VITE_API_URL}/api/listings`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session?.access_token}`
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session?.access_token}`,
         },
-        body: JSON.stringify({
-          ...values,
-          images: imageUrls,
-          price: Math.round(values.price * 100) // Convert to cents
-        })
+        body: JSON.stringify({ ...values, images: imageUrls, price: Math.round(values.price * 100) }),
       })
-
-      if (!response.ok) throw new Error('Failed to create listing')
-
-      navigate('/dashboard')
+      if (!response.ok) throw new Error("Failed to create listing")
+      navigate("/dashboard")
     } catch (error) {
       console.error(error)
-      alert('Error creating listing')
+      alert("Error creating listing")
     } finally {
       setUploading(false)
     }
   }
 
+  const busy = isSubmitting || uploading
+
   return (
-    <div className="container mx-auto max-w-2xl py-10">
-      <Card>
-        <CardHeader>
-          <CardTitle>Sell an Item</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            <div className="space-y-2">
-              <label htmlFor="title" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Title</label>
-              <Input id="title" placeholder="Vintage Lamp" {...register("title")} />
-              {errors.title && <p className="text-sm text-red-500">{errors.title.message}</p>}
-            </div>
+    <div className="mx-auto max-w-2xl px-6 md:px-10" style={{ paddingTop: 40, paddingBottom: 64 }}>
+      <h1 style={{ fontSize: 28, fontWeight: 700, color: "#222222", marginBottom: 8 }}>Sell an item</h1>
+      <p style={{ fontSize: 16, color: "#6a6a6a", marginBottom: 32 }}>
+        List something for your mates at mates rates.
+      </p>
 
-            <div className="space-y-2">
-              <label htmlFor="description" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Description</label>
-              <Textarea id="description" placeholder="Great condition..." {...register("description")} />
-              {errors.description && <p className="text-sm text-red-500">{errors.description.message}</p>}
-            </div>
+      <form onSubmit={handleSubmit(onSubmit)} style={{ display: "flex", flexDirection: "column", gap: 24 }}>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <label htmlFor="price" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Price (£)</label>
-                <Input type="number" step="0.01" id="price" {...register("price")} />
-                {errors.price && <p className="text-sm text-red-500">{errors.price.message}</p>}
-              </div>
+        <div>
+          <label htmlFor="title" style={labelStyle}>Title</label>
+          <input
+            id="title"
+            placeholder="Vintage lamp, old bike…"
+            style={fieldStyle}
+            onFocus={(e) => (e.currentTarget.style.border = "2px solid #222222")}
+            onBlur={(e) => (e.currentTarget.style.border = "1px solid #dddddd")}
+            {...register("title")}
+          />
+          {errors.title && <p style={errorStyle}>{errors.title.message}</p>}
+        </div>
 
-              <div className="space-y-2">
-                <label htmlFor="category" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Category</label>
-                <Input id="category" placeholder="Furniture" {...register("category")} />
-                {errors.category && <p className="text-sm text-red-500">{errors.category.message}</p>}
-              </div>
-            </div>
+        <div>
+          <label htmlFor="description" style={labelStyle}>Description</label>
+          <textarea
+            id="description"
+            placeholder="Great condition, barely used…"
+            rows={4}
+            style={{
+              ...fieldStyle,
+              height: "auto",
+              padding: "14px 12px",
+              resize: "vertical",
+              fontFamily: "inherit",
+            }}
+            onFocus={(e) => (e.currentTarget.style.border = "2px solid #222222")}
+            onBlur={(e) => (e.currentTarget.style.border = "1px solid #dddddd")}
+            {...register("description")}
+          />
+          {errors.description && <p style={errorStyle}>{errors.description.message}</p>}
+        </div>
 
-            <div className="space-y-2">
-              <label htmlFor="image" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Images (Max 10)</label>
-              <Input
-                id="image"
-                type="file"
-                accept="image/*"
-                multiple
-                onChange={onSelectImages}
-                disabled={selectedImages.length >= 10}
-              />
-              <p className="text-xs text-muted-foreground">{selectedImages.length}/10 images selected</p>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label htmlFor="price" style={labelStyle}>Price (£)</label>
+            <input
+              type="number"
+              step="0.01"
+              id="price"
+              placeholder="0.00"
+              style={fieldStyle}
+              onFocus={(e) => (e.currentTarget.style.border = "2px solid #222222")}
+              onBlur={(e) => (e.currentTarget.style.border = "1px solid #dddddd")}
+              {...register("price")}
+            />
+            {errors.price && <p style={errorStyle}>{errors.price.message}</p>}
+          </div>
+          <div>
+            <label htmlFor="category" style={labelStyle}>Category</label>
+            <input
+              id="category"
+              placeholder="Furniture, electronics…"
+              style={fieldStyle}
+              onFocus={(e) => (e.currentTarget.style.border = "2px solid #222222")}
+              onBlur={(e) => (e.currentTarget.style.border = "1px solid #dddddd")}
+              {...register("category")}
+            />
+            {errors.category && <p style={errorStyle}>{errors.category.message}</p>}
+          </div>
+        </div>
 
-              {previews.length > 0 && (
-                <div className="grid grid-cols-3 gap-4 mt-4">
-                  {previews.map((src, index) => (
-                    <div key={index} className="relative aspect-square w-full overflow-hidden rounded-md border">
-                      <img
-                        src={src}
-                        alt={`Preview ${index}`}
-                        className="h-full w-full object-cover"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => removeImage(index)}
-                        className="absolute top-1 right-1 h-6 w-6 rounded-full bg-red-500 text-white flex items-center justify-center text-xs hover:bg-red-600 focus:outline-none"
-                      >
-                        X
-                      </button>
-                    </div>
-                  ))}
+        {/* Image upload */}
+        <div>
+          <label style={labelStyle}>Photos ({selectedImages.length}/10)</label>
+          <label
+            className="flex flex-col items-center justify-center cursor-pointer transition-colors"
+            style={{
+              border: "1.5px dashed #dddddd",
+              borderRadius: 8,
+              padding: "24px",
+              backgroundColor: selectedImages.length >= 10 ? "#f7f7f7" : "#ffffff",
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.borderColor = "#929292")}
+            onMouseLeave={(e) => (e.currentTarget.style.borderColor = "#dddddd")}
+          >
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              className="sr-only"
+              onChange={onSelectImages}
+              disabled={selectedImages.length >= 10}
+            />
+            <p style={{ fontSize: 14, color: "#6a6a6a", textAlign: "center" }}>
+              {selectedImages.length >= 10
+                ? "Maximum 10 photos reached"
+                : "Click to add photos"}
+            </p>
+            <p style={{ fontSize: 13, color: "#929292", marginTop: 4 }}>
+              JPEG, PNG, WebP — up to 10 photos
+            </p>
+          </label>
+
+          {previews.length > 0 && (
+            <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 mt-4">
+              {previews.map((src, index) => (
+                <div
+                  key={index}
+                  className="relative aspect-square overflow-hidden"
+                  style={{ borderRadius: 8, border: "1px solid #ebebeb" }}
+                >
+                  <img src={src} alt={`Preview ${index}`} className="h-full w-full object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => removeImage(index)}
+                    className="absolute top-1 right-1 flex items-center justify-center transition-colors"
+                    style={{
+                      width: 22, height: 22, borderRadius: "50%",
+                      backgroundColor: "rgba(0,0,0,0.6)",
+                      border: "none", cursor: "pointer",
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "rgba(0,0,0,0.85)")}
+                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "rgba(0,0,0,0.6)")}
+                  >
+                    <X className="h-3 w-3" style={{ color: "#ffffff" }} />
+                  </button>
                 </div>
-              )}
+              ))}
             </div>
+          )}
+        </div>
 
-            <Button type="submit" className="w-full" disabled={isSubmitting || uploading}>
-              {(isSubmitting || uploading) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              List Item
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
+        <button
+          type="submit"
+          disabled={busy}
+          className="flex items-center justify-center gap-2 transition-colors"
+          style={{
+            backgroundColor: busy ? "#ffd1da" : "#ff385c",
+            color: "#ffffff",
+            borderRadius: 8,
+            padding: "14px 24px",
+            height: 48,
+            fontSize: 16,
+            fontWeight: 500,
+            border: "none",
+            cursor: busy ? "not-allowed" : "pointer",
+            lineHeight: 1.25,
+          }}
+          onMouseEnter={(e) => { if (!busy) e.currentTarget.style.backgroundColor = "#e00b41" }}
+          onMouseLeave={(e) => { if (!busy) e.currentTarget.style.backgroundColor = "#ff385c" }}
+        >
+          {busy && <Loader2 className="h-4 w-4 animate-spin" />}
+          List Item
+        </button>
+      </form>
     </div>
   )
 }

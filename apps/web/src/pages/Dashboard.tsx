@@ -1,10 +1,8 @@
 import { useEffect, useState } from "react"
 import { useAuth } from "@/context/AuthContext"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Link } from "react-router-dom"
 import { OffersTable, type IncomingOffer, type OutgoingOffer } from "@/components/OffersTable"
 import { Plus } from "lucide-react"
-import { Button } from "@/components/ui/button"
 
 type Listing = {
   id: number
@@ -20,6 +18,114 @@ type Listing = {
   }
 }
 
+function PropertyCard({ item, showSeller = false }: { item: Listing; showSeller?: boolean }) {
+  return (
+    <Link to={`/listings/${item.id}`} className="group block">
+      <div
+        className="overflow-hidden transition-all duration-200 group-hover:shadow-card-hover"
+        style={{ borderRadius: 14 }}
+      >
+        {/* Photo */}
+        <div className="relative aspect-square w-full overflow-hidden bg-[#f2f2f2]" style={{ borderRadius: 14 }}>
+          {item.images?.[0] ? (
+            <img
+              src={item.images[0]}
+              alt={item.title}
+              className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+            />
+          ) : (
+            <div className="flex h-full items-center justify-center" style={{ color: "#929292", fontSize: 13 }}>
+              No image
+            </div>
+          )}
+          {/* Price badge */}
+          <div
+            className="absolute top-3 right-3 px-2 py-1"
+            style={{
+              backgroundColor: "rgba(255,255,255,0.92)",
+              borderRadius: 8,
+              fontSize: 13,
+              fontWeight: 600,
+              color: "#222222",
+              backdropFilter: "blur(4px)",
+            }}
+          >
+            £{(item.price / 100).toFixed(2)}
+          </div>
+        </div>
+
+        {/* Meta */}
+        <div className="pt-3 pb-1 px-0.5">
+          <div
+            className="truncate"
+            style={{ fontSize: 14, fontWeight: 600, color: "#222222", lineHeight: 1.25 }}
+          >
+            {item.title}
+          </div>
+          <div
+            className="capitalize mt-0.5"
+            style={{ fontSize: 14, color: "#6a6a6a", lineHeight: 1.43 }}
+          >
+            {item.category}
+          </div>
+          {showSeller && item.seller?.name && (
+            <div className="flex items-center gap-1.5 mt-2">
+              {item.seller.avatarUrl ? (
+                <img
+                  src={item.seller.avatarUrl}
+                  className="h-5 w-5 rounded-full object-cover"
+                  alt={item.seller.name}
+                />
+              ) : (
+                <div
+                  className="h-5 w-5 rounded-full flex items-center justify-center"
+                  style={{ backgroundColor: "#f2f2f2", fontSize: 10, color: "#6a6a6a" }}
+                >
+                  {item.seller.name[0]?.toUpperCase()}
+                </div>
+              )}
+              <span style={{ fontSize: 13, color: "#6a6a6a" }}>{item.seller.name}</span>
+            </div>
+          )}
+        </div>
+      </div>
+    </Link>
+  )
+}
+
+function SectionHeader({
+  title,
+  count,
+  action,
+}: {
+  title: string
+  count?: number
+  action?: React.ReactNode
+}) {
+  return (
+    <div className="flex items-center justify-between mb-5">
+      <div className="flex items-center gap-3">
+        <h2 style={{ fontSize: 22, fontWeight: 600, color: "#222222", lineHeight: 1.2 }}>{title}</h2>
+        {count != null && count > 0 && (
+          <span
+            className="px-2.5 py-0.5"
+            style={{
+              fontSize: 12,
+              fontWeight: 600,
+              color: "#6a6a6a",
+              backgroundColor: "#f2f2f2",
+              borderRadius: 9999,
+            }}
+          >
+            {count}
+          </span>
+        )}
+      </div>
+      {action}
+    </div>
+  )
+}
+
 export default function Dashboard() {
   const { session } = useAuth()
   const [listings, setListings] = useState<Listing[]>([])
@@ -31,22 +137,20 @@ export default function Dashboard() {
     if (!session?.access_token) return
     setLoading(true)
     try {
-      const headers = { 'Authorization': `Bearer ${session.access_token}` }
-
+      const headers = { Authorization: `Bearer ${session.access_token}` }
       const [listingsRes, incomingRes, outgoingRes] = await Promise.all([
         fetch(`${import.meta.env.VITE_API_URL}/api/listings`, { headers }),
         fetch(`${import.meta.env.VITE_API_URL}/api/offers/incoming`, { headers }),
-        fetch(`${import.meta.env.VITE_API_URL}/api/offers/outgoing`, { headers })
+        fetch(`${import.meta.env.VITE_API_URL}/api/offers/outgoing`, { headers }),
       ])
-
-      const listingsData = await listingsRes.json()
-      const incomingData = await incomingRes.json()
-      const outgoingData = await outgoingRes.json()
-
+      const [listingsData, incomingData, outgoingData] = await Promise.all([
+        listingsRes.json(),
+        incomingRes.json(),
+        outgoingRes.json(),
+      ])
       setListings(listingsData.listings || [])
       setIncomingOffers(incomingData.offers || [])
       setOutgoingOffers(outgoingData.offers || [])
-
     } catch (error) {
       console.error(error)
     } finally {
@@ -54,163 +158,176 @@ export default function Dashboard() {
     }
   }
 
-  useEffect(() => {
-    fetchData()
-  }, [session])
+  useEffect(() => { fetchData() }, [session])
 
-  const handleStatusUpdate = async (id: number, status: 'accepted' | 'declined') => {
+  const handleStatusUpdate = async (id: number, status: "accepted" | "declined") => {
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL}/api/offers/${id}/status`, {
-        method: 'PATCH',
+        method: "PATCH",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session?.access_token}`
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session?.access_token}`,
         },
-        body: JSON.stringify({ status })
+        body: JSON.stringify({ status }),
       })
-      if (res.ok) {
-        fetchData() // Refresh everything to update statuses
-      }
+      if (res.ok) fetchData()
     } catch (e) {
       console.error(e)
     }
   }
 
-  const myListings = listings.filter(l => l.userId === session?.user.id)
-  const friendListings = listings.filter(l => l.userId !== session?.user.id)
+  const myListings = listings.filter((l) => l.userId === session?.user.id)
+  const friendListings = listings.filter((l) => l.userId !== session?.user.id)
 
-  if (loading && listings.length === 0) return <div className="p-8 text-center">Loading dashboard...</div>
+  if (loading && listings.length === 0) {
+    return (
+      <div
+        className="flex items-center justify-center"
+        style={{ minHeight: "50vh", color: "#6a6a6a", fontSize: 16 }}
+      >
+        Loading…
+      </div>
+    )
+  }
 
   return (
-    <div className="container mx-auto p-4 md:p-8 space-y-12">
+    <div className="mx-auto max-w-7xl px-6 md:px-10" style={{ paddingTop: 48, paddingBottom: 64 }}>
 
-      <div className="flex justify-between items-center border-b pb-6">
+      {/* Page header */}
+      <div
+        className="flex justify-between items-start pb-8 mb-2"
+        style={{ borderBottom: "1px solid #ebebeb" }}
+      >
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-          <p className="text-muted-foreground mt-1">Manage your listings, offers, and find deals from mates.</p>
+          <h1 style={{ fontSize: 28, fontWeight: 700, color: "#222222", lineHeight: 1.43 }}>
+            Dashboard
+          </h1>
+          <p style={{ fontSize: 16, color: "#6a6a6a", marginTop: 4, lineHeight: 1.5 }}>
+            Manage your listings, offers, and find deals from mates.
+          </p>
         </div>
-        <Button asChild className="bg-linear-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700">
-          <Link to="/listings/new">
-            <Plus className="mr-2 h-4 w-4" /> New Listing
-          </Link>
-        </Button>
+        <Link
+          to="/listings/new"
+          className="flex items-center gap-2 transition-colors"
+          style={{
+            backgroundColor: "#ff385c",
+            color: "#ffffff",
+            borderRadius: 8,
+            padding: "14px 24px",
+            height: 48,
+            fontSize: 16,
+            fontWeight: 500,
+            lineHeight: 1.25,
+            textDecoration: "none",
+            whiteSpace: "nowrap",
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#e00b41")}
+          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#ff385c")}
+        >
+          <Plus className="h-4 w-4" />
+          New Listing
+        </Link>
       </div>
 
-      {/* Section 1: My Listings */}
-      <section className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold tracking-tight text-slate-800">My Listings</h2>
-          {myListings.length > 0 && (
-            <span className="text-sm font-medium text-muted-foreground bg-secondary px-2.5 py-0.5 rounded-full">
-              {myListings.length}
-            </span>
-          )}
-        </div>
-
+      {/* My Listings */}
+      <section style={{ marginTop: 48 }}>
+        <SectionHeader
+          title="My Listings"
+          count={myListings.length}
+          action={
+            <Link
+              to="/listings/new"
+              style={{ fontSize: 14, color: "#ff385c", fontWeight: 400, textDecoration: "none" }}
+              onMouseEnter={(e) => (e.currentTarget.style.textDecoration = "underline")}
+              onMouseLeave={(e) => (e.currentTarget.style.textDecoration = "none")}
+            >
+              + Add listing
+            </Link>
+          }
+        />
         {myListings.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5" style={{ gap: 16 }}>
             {myListings.map((item) => (
-              <Link key={item.id} to={`/listings/${item.id}`} className="group block h-full">
-                <Card className="overflow-hidden h-full border-2 border-transparent transition-all hover:border-blue-500/20 hover:shadow-lg">
-                  <div className="aspect-4/3 w-full overflow-hidden bg-slate-100 relative">
-                    {item.images && item.images[0] ? (
-                      <img
-                        src={item.images[0]}
-                        alt={item.title}
-                        className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                      />
-                    ) : (
-                      <div className="flex h-full items-center justify-center text-slate-300">
-                        No Image
-                      </div>
-                    )}
-                    <div className="absolute top-2 right-2 bg-black/70 text-white text-xs font-bold px-2 py-1 rounded-md backdrop-blur-sm">
-                      £{(item.price / 100).toFixed(2)}
-                    </div>
-                  </div>
-                  <CardHeader className="p-4 pb-2">
-                    <CardTitle className="text-base truncate" title={item.title}>{item.title}</CardTitle>
-                    <p className="text-xs text-muted-foreground capitalize">{item.category}</p>
-                  </CardHeader>
-                </Card>
-              </Link>
+              <PropertyCard key={item.id} item={item} />
             ))}
           </div>
         ) : (
-          <div className="bg-slate-50 border border-dashed border-slate-300 rounded-lg p-12 text-center">
-            <h3 className="text-lg font-medium text-slate-900">No listings yet</h3>
-            <p className="text-muted-foreground mt-2 mb-6">Create your first listing to start selling to your mates.</p>
-            <Button variant="outline" asChild>
-              <Link to="/listings/new">Create Listing</Link>
-            </Button>
+          <div
+            className="flex flex-col items-center justify-center text-center"
+            style={{
+              border: "1.5px dashed #dddddd",
+              borderRadius: 14,
+              padding: "48px 24px",
+            }}
+          >
+            <p style={{ fontSize: 16, fontWeight: 600, color: "#222222" }}>No listings yet</p>
+            <p style={{ fontSize: 14, color: "#6a6a6a", marginTop: 6, marginBottom: 20 }}>
+              Create your first listing to start selling to your mates.
+            </p>
+            <Link
+              to="/listings/new"
+              style={{
+                backgroundColor: "#ffffff",
+                color: "#222222",
+                border: "1px solid #222222",
+                borderRadius: 8,
+                padding: "13px 23px",
+                fontSize: 16,
+                fontWeight: 500,
+                textDecoration: "none",
+                lineHeight: 1.25,
+              }}
+            >
+              Create Listing
+            </Link>
           </div>
         )}
       </section>
 
-      {/* Section 2: New Listings (Mates) */}
-      <section className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold tracking-tight text-slate-800">New from Mates</h2>
-          <Link to="/mates" className="text-sm text-blue-600 hover:underline">View all mates</Link>
-        </div>
-
+      {/* New from Mates */}
+      <section style={{ marginTop: 64 }}>
+        <SectionHeader
+          title="New from Mates"
+          count={friendListings.length}
+          action={
+            <Link
+              to="/mates"
+              style={{ fontSize: 14, color: "#6a6a6a", fontWeight: 400, textDecoration: "none" }}
+              onMouseEnter={(e) => (e.currentTarget.style.textDecoration = "underline")}
+              onMouseLeave={(e) => (e.currentTarget.style.textDecoration = "none")}
+            >
+              View all mates
+            </Link>
+          }
+        />
         {friendListings.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" style={{ gap: 24 }}>
             {friendListings.map((item) => (
-              <Link key={item.id} to={`/listings/${item.id}`} className="block h-full">
-                <Card className="overflow-hidden h-full transition-all hover:shadow-md hover:-translate-y-1 border-slate-200">
-                  {item.images && item.images[0] && (
-                    <div className="aspect-video w-full overflow-hidden bg-muted">
-                      <img
-                        src={item.images[0]}
-                        alt={item.title}
-                        className="h-full w-full object-cover transition-transform hover:scale-105"
-                      />
-                    </div>
-                  )}
-                  <CardHeader>
-                    <div className="flex justify-between items-start">
-                      <CardTitle className="line-clamp-1 text-lg">{item.title}</CardTitle>
-                      <span className="font-bold text-lg text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded">
-                        £{(item.price / 100).toFixed(2)}
-                      </span>
-                    </div>
-                    <p className="text-sm text-muted-foreground capitalize">{item.category}</p>
-                  </CardHeader>
-                  <CardContent className="pb-2">
-                    <p className="text-sm text-slate-600 line-clamp-2">{item.description}</p>
-                  </CardContent>
-                  <CardFooter className="flex items-center gap-3 border-t bg-slate-50/50 p-4 mt-auto">
-                    {item.seller.avatarUrl ? (
-                      <img src={item.seller.avatarUrl} className="h-8 w-8 rounded-full border border-slate-200" />
-                    ) : (
-                      <div className="h-8 w-8 rounded-full bg-slate-200 flex items-center justify-center text-xs text-slate-500">?</div>
-                    )}
-                    <div className="text-sm">
-                      <p className="font-medium text-slate-900">{item.seller.name || 'Friend'}</p>
-                      <p className="text-xs text-slate-500">Selling for mates</p>
-                    </div>
-                  </CardFooter>
-                </Card>
-              </Link>
+              <PropertyCard key={item.id} item={item} showSeller />
             ))}
           </div>
         ) : (
-          <div className="bg-slate-50 border border-dashed border-slate-300 rounded-lg p-12 text-center">
-            <p className="text-muted-foreground">No active listings from your mates right now.</p>
+          <div
+            className="text-center"
+            style={{
+              border: "1.5px dashed #dddddd",
+              borderRadius: 14,
+              padding: "48px 24px",
+            }}
+          >
+            <p style={{ fontSize: 14, color: "#6a6a6a" }}>No active listings from your mates right now.</p>
           </div>
         )}
       </section>
 
-      {/* Section 3: Offers Table */}
-      <section className="space-y-4">
+      {/* Offers */}
+      <section style={{ marginTop: 64 }}>
         <OffersTable
           incoming={incomingOffers}
           outgoing={outgoingOffers}
           onStatusUpdate={handleStatusUpdate}
         />
       </section>
-
     </div>
   )
 }

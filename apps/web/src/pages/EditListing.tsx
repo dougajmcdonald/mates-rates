@@ -5,22 +5,42 @@ import { z } from "zod"
 import { useAuth } from "@/context/AuthContext"
 import { supabase } from "@/lib/supabase"
 import { useNavigate, useParams } from "react-router-dom"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
-import { Loader2, ArrowLeft } from "lucide-react"
+import { Loader2, ArrowLeft, X } from "lucide-react"
 
 const formSchema = z.object({
-    title: z.string().min(2, {
-        message: "Title must be at least 2 characters.",
-    }),
-    description: z.string().min(10, {
-        message: "Description must be at least 10 characters.",
-    }),
+    title: z.string().min(2, { message: "Title must be at least 2 characters." }),
+    description: z.string().min(10, { message: "Description must be at least 10 characters." }),
     price: z.coerce.number().min(0, "Price must be positive"),
     category: z.string().min(1, "Category is required"),
 })
+
+const fieldStyle: React.CSSProperties = {
+    width: "100%",
+    height: 56,
+    backgroundColor: "#ffffff",
+    border: "1px solid #dddddd",
+    borderRadius: 8,
+    padding: "0 12px",
+    fontSize: 16,
+    color: "#222222",
+    outline: "none",
+    boxSizing: "border-box",
+}
+
+const labelStyle: React.CSSProperties = {
+    display: "block",
+    fontSize: 14,
+    fontWeight: 500,
+    color: "#222222",
+    marginBottom: 6,
+    lineHeight: 1.29,
+}
+
+const errorStyle: React.CSSProperties = {
+    fontSize: 13,
+    color: "#c13515",
+    marginTop: 4,
+}
 
 export default function EditListing() {
     const { id } = useParams()
@@ -38,227 +58,292 @@ export default function EditListing() {
 
     useEffect(() => {
         if (session?.access_token && id) {
-            // Fetch all listings and filter (matching ListingDetails logic due to lack of single endpoint yet)
-            // Or actually, ListingDetails logic was temporary.
-            // We really should use the FIND ALL endpoint and filter, 
-            // OR add a proper single GET endpoint. 
-            // For consistent MVP, let's just stick to the pattern we used in ListingDetails.
             fetch(`${import.meta.env.VITE_API_URL}/api/listings`, {
-                headers: { 'Authorization': `Bearer ${session.access_token}` }
+                headers: { Authorization: `Bearer ${session.access_token}` },
             })
-                .then(res => res.json())
-                .then(data => {
+                .then((res) => res.json())
+                .then((data) => {
                     const found = data.listings?.find((l: any) => l.id === Number(id))
                     if (found) {
-                        // Verify ownership
                         if (found.userId !== user?.id) {
-                            alert('Unauthorized')
-                            navigate('/dashboard')
+                            alert("Unauthorized")
+                            navigate("/dashboard")
                             return
                         }
-
-                        setValue('title', found.title)
-                        setValue('description', found.description)
-                        setValue('price', found.price / 100) // Convert cents to units
-                        setValue('category', found.category)
+                        setValue("title", found.title)
+                        setValue("description", found.description)
+                        setValue("price", found.price / 100)
+                        setValue("category", found.category)
                         setExistingImages(found.images || [])
                     } else {
-                        alert('Listing not found')
-                        navigate('/dashboard')
+                        alert("Listing not found")
+                        navigate("/dashboard")
                     }
                 })
                 .finally(() => setLoading(false))
         }
     }, [id, session, user, navigate, setValue])
 
-    const onSubmit = async (values: z.infer<typeof formSchema>) => {
-        try {
-            setUploading(true)
-            let imageUrls: string[] = [...existingImages]
-
-            if (selectedImages.length > 0) {
-                // Upload new images
-                const uploadPromises = selectedImages.map(async (file) => {
-                    const fileExt = file.name.split('.').pop()
-                    const fileName = `${Math.random()}.${fileExt}`
-                    const filePath = `${fileName}`
-
-                    const { error: uploadError } = await supabase.storage
-                        .from('listings')
-                        .upload(filePath, file)
-
-                    if (uploadError) throw uploadError
-
-                    const { data } = supabase.storage.from('listings').getPublicUrl(filePath)
-                    return data.publicUrl
-                })
-
-                const newUrls = await Promise.all(uploadPromises)
-                imageUrls = [...imageUrls, ...newUrls]
-            }
-
-            // Update listing on backend
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/listings/${id}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${session?.access_token}`
-                },
-                body: JSON.stringify({
-                    ...values,
-                    images: imageUrls,
-                    price: Math.round(values.price * 100)
-                })
-            })
-
-            if (!response.ok) throw new Error('Failed to update listing')
-
-            navigate(`/listings/${id}`)
-        } catch (error) {
-            console.error(error)
-            alert('Error updating listing')
-        } finally {
-            setUploading(false)
+    const onSelectImages = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (!e.target.files) return
+        const filesArray = Array.from(e.target.files)
+        const currentTotal = existingImages.length + selectedImages.length
+        if (currentTotal + filesArray.length > 10) {
+            alert(`You can only have 10 images. Currently ${currentTotal}, adding ${filesArray.length}.`)
+            return
         }
+        setSelectedImages((prev) => [...prev, ...filesArray])
+        setPreviews((prev) => [...prev, ...filesArray.map((f) => URL.createObjectURL(f))])
     }
 
     const removeExistingImage = (index: number) => {
-        setExistingImages(prev => prev.filter((_, i) => i !== index))
+        setExistingImages((prev) => prev.filter((_, i) => i !== index))
     }
 
     const removeSelectedImage = (index: number) => {
-        setSelectedImages(prev => prev.filter((_, i) => i !== index))
-        setPreviews(prev => {
+        setSelectedImages((prev) => prev.filter((_, i) => i !== index))
+        setPreviews((prev) => {
             URL.revokeObjectURL(prev[index])
             return prev.filter((_, i) => i !== index)
         })
     }
 
-    const onSelectImages = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files) {
-            const filesArray = Array.from(e.target.files)
-            const currentTotal = existingImages.length + selectedImages.length
+    const onSubmit = async (values: z.infer<typeof formSchema>) => {
+        try {
+            setUploading(true)
+            let imageUrls = [...existingImages]
 
-            if (currentTotal + filesArray.length > 10) {
-                alert(`You can only have a maximum of 10 images. You currently have ${currentTotal} and are trying to add ${filesArray.length}.`)
-                return
+            if (selectedImages.length > 0) {
+                const uploadPromises = selectedImages.map(async (file) => {
+                    const fileExt = file.name.split(".").pop()
+                    const fileName = `${Math.random()}.${fileExt}`
+                    const { error: uploadError } = await supabase.storage.from("listings").upload(fileName, file)
+                    if (uploadError) throw uploadError
+                    return supabase.storage.from("listings").getPublicUrl(fileName).data.publicUrl
+                })
+                imageUrls = [...imageUrls, ...(await Promise.all(uploadPromises))]
             }
 
-            setSelectedImages(prev => [...prev, ...filesArray])
-
-            const newPreviews = filesArray.map(file => URL.createObjectURL(file))
-            setPreviews(prev => [...prev, ...newPreviews])
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/listings/${id}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${session?.access_token}`,
+                },
+                body: JSON.stringify({ ...values, images: imageUrls, price: Math.round(values.price * 100) }),
+            })
+            if (!response.ok) throw new Error("Failed to update listing")
+            navigate(`/listings/${id}`)
+        } catch (error) {
+            console.error(error)
+            alert("Error updating listing")
+        } finally {
+            setUploading(false)
         }
     }
 
-    if (loading) return <div className="flex h-screen items-center justify-center"><Loader2 className="animate-spin" /></div>
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center" style={{ minHeight: "60vh" }}>
+                <Loader2 className="animate-spin" style={{ color: "#ff385c", width: 32, height: 32 }} />
+            </div>
+        )
+    }
+
+    const busy = isSubmitting || uploading
+    const totalImages = existingImages.length + selectedImages.length
 
     return (
-        <div className="container mx-auto max-w-2xl py-10">
-            <Button variant="ghost" onClick={() => navigate(-1)} className="mb-6">
-                <ArrowLeft className="mr-2 h-4 w-4" /> Back
-            </Button>
+        <div className="mx-auto max-w-2xl px-6 md:px-10" style={{ paddingTop: 40, paddingBottom: 64 }}>
+            <button
+                onClick={() => navigate(-1)}
+                className="flex items-center gap-1.5 mb-6 transition-colors"
+                style={{
+                    background: "none", border: "none", cursor: "pointer",
+                    fontSize: 14, color: "#222222", fontWeight: 400, padding: 0,
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = "#6a6a6a")}
+                onMouseLeave={(e) => (e.currentTarget.style.color = "#222222")}
+            >
+                <ArrowLeft className="h-4 w-4" /> Back
+            </button>
 
-            <Card>
-                <CardHeader>
-                    <CardTitle>Edit Listing</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                        <div className="space-y-2">
-                            <label htmlFor="title" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Title</label>
-                            <Input id="title" placeholder="Vintage Lamp" {...register("title")} />
-                            {errors.title && <p className="text-sm text-red-500">{errors.title.message}</p>}
-                        </div>
+            <h1 style={{ fontSize: 28, fontWeight: 700, color: "#222222", marginBottom: 8 }}>Edit listing</h1>
+            <p style={{ fontSize: 16, color: "#6a6a6a", marginBottom: 32 }}>
+                Update your listing details below.
+            </p>
 
-                        <div className="space-y-2">
-                            <label htmlFor="description" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Description</label>
-                            <Textarea id="description" placeholder="Great condition..." {...register("description")} />
-                            {errors.description && <p className="text-sm text-red-500">{errors.description.message}</p>}
-                        </div>
+            <form onSubmit={handleSubmit(onSubmit)} style={{ display: "flex", flexDirection: "column", gap: 24 }}>
 
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <label htmlFor="price" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Price (£)</label>
-                                <Input type="number" step="0.01" id="price" {...register("price")} />
-                                {errors.price && <p className="text-sm text-red-500">{errors.price.message}</p>}
-                            </div>
+                <div>
+                    <label htmlFor="title" style={labelStyle}>Title</label>
+                    <input
+                        id="title"
+                        placeholder="Vintage lamp, old bike…"
+                        style={fieldStyle}
+                        onFocus={(e) => (e.currentTarget.style.border = "2px solid #222222")}
+                        onBlur={(e) => (e.currentTarget.style.border = "1px solid #dddddd")}
+                        {...register("title")}
+                    />
+                    {errors.title && <p style={errorStyle}>{errors.title.message}</p>}
+                </div>
 
-                            <div className="space-y-2">
-                                <label htmlFor="category" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Category</label>
-                                <Input id="category" placeholder="Furniture" {...register("category")} />
-                                {errors.category && <p className="text-sm text-red-500">{errors.category.message}</p>}
-                            </div>
-                        </div>
+                <div>
+                    <label htmlFor="description" style={labelStyle}>Description</label>
+                    <textarea
+                        id="description"
+                        placeholder="Great condition, barely used…"
+                        rows={4}
+                        style={{
+                            ...fieldStyle,
+                            height: "auto",
+                            padding: "14px 12px",
+                            resize: "vertical",
+                            fontFamily: "inherit",
+                        }}
+                        onFocus={(e) => (e.currentTarget.style.border = "2px solid #222222")}
+                        onBlur={(e) => (e.currentTarget.style.border = "1px solid #dddddd")}
+                        {...register("description")}
+                    />
+                    {errors.description && <p style={errorStyle}>{errors.description.message}</p>}
+                </div>
 
-                        <div className="space-y-4">
-                            <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Images (Max 10)</label>
+                <div className="grid grid-cols-2 gap-4">
+                    <div>
+                        <label htmlFor="price" style={labelStyle}>Price (£)</label>
+                        <input
+                            type="number"
+                            step="0.01"
+                            id="price"
+                            placeholder="0.00"
+                            style={fieldStyle}
+                            onFocus={(e) => (e.currentTarget.style.border = "2px solid #222222")}
+                            onBlur={(e) => (e.currentTarget.style.border = "1px solid #dddddd")}
+                            {...register("price")}
+                        />
+                        {errors.price && <p style={errorStyle}>{errors.price.message}</p>}
+                    </div>
+                    <div>
+                        <label htmlFor="category" style={labelStyle}>Category</label>
+                        <input
+                            id="category"
+                            placeholder="Furniture, electronics…"
+                            style={fieldStyle}
+                            onFocus={(e) => (e.currentTarget.style.border = "2px solid #222222")}
+                            onBlur={(e) => (e.currentTarget.style.border = "1px solid #dddddd")}
+                            {...register("category")}
+                        />
+                        {errors.category && <p style={errorStyle}>{errors.category.message}</p>}
+                    </div>
+                </div>
 
-                            {/* Existing Images */}
-                            {existingImages.length > 0 && (
-                                <div>
-                                    <p className="text-xs text-muted-foreground mb-2">Existing Images</p>
-                                    <div className="grid grid-cols-3 gap-4">
-                                        {existingImages.map((src, index) => (
-                                            <div key={`existing-${index}`} className="relative aspect-square w-full overflow-hidden rounded-md border">
-                                                <img src={src} alt={`Existing ${index}`} className="h-full w-full object-cover" />
-                                                <button
-                                                    type="button"
-                                                    onClick={() => removeExistingImage(index)}
-                                                    className="absolute top-1 right-1 h-6 w-6 rounded-full bg-red-500 text-white flex items-center justify-center text-xs hover:bg-red-600 focus:outline-none"
-                                                >
-                                                    X
-                                                </button>
-                                            </div>
-                                        ))}
+                {/* Photos */}
+                <div>
+                    <label style={labelStyle}>Photos ({totalImages}/10)</label>
+
+                    {existingImages.length > 0 && (
+                        <div className="mb-3">
+                            <p style={{ fontSize: 13, color: "#6a6a6a", marginBottom: 8 }}>Current photos</p>
+                            <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+                                {existingImages.map((src, index) => (
+                                    <div
+                                        key={`existing-${index}`}
+                                        className="relative aspect-square overflow-hidden"
+                                        style={{ borderRadius: 8, border: "1px solid #ebebeb" }}
+                                    >
+                                        <img src={src} alt={`Existing ${index}`} className="h-full w-full object-cover" />
+                                        <button
+                                            type="button"
+                                            onClick={() => removeExistingImage(index)}
+                                            className="absolute top-1 right-1 flex items-center justify-center"
+                                            style={{
+                                                width: 22, height: 22, borderRadius: "50%",
+                                                backgroundColor: "rgba(0,0,0,0.6)",
+                                                border: "none", cursor: "pointer",
+                                            }}
+                                        >
+                                            <X className="h-3 w-3" style={{ color: "#ffffff" }} />
+                                        </button>
                                     </div>
-                                </div>
-                            )}
-
-                            {/* New Uploads */}
-                            <div>
-                                <Input
-                                    id="image"
-                                    type="file"
-                                    accept="image/*"
-                                    multiple
-                                    onChange={onSelectImages}
-                                    disabled={existingImages.length + selectedImages.length >= 10}
-                                />
-                                <p className="text-xs text-muted-foreground mt-1">
-                                    {existingImages.length + selectedImages.length}/10 images total
-                                </p>
+                                ))}
                             </div>
-
-                            {/* Previews of New Images */}
-                            {previews.length > 0 && (
-                                <div>
-                                    <p className="text-xs text-muted-foreground mb-2">New Images</p>
-                                    <div className="grid grid-cols-3 gap-4">
-                                        {previews.map((src, index) => (
-                                            <div key={`new-${index}`} className="relative aspect-square w-full overflow-hidden rounded-md border">
-                                                <img src={src} alt={`Preview ${index}`} className="h-full w-full object-cover" />
-                                                <button
-                                                    type="button"
-                                                    onClick={() => removeSelectedImage(index)}
-                                                    className="absolute top-1 right-1 h-6 w-6 rounded-full bg-red-500 text-white flex items-center justify-center text-xs hover:bg-red-600 focus:outline-none"
-                                                >
-                                                    X
-                                                </button>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
                         </div>
+                    )}
 
-                        <Button type="submit" className="w-full" disabled={isSubmitting || uploading}>
-                            {(isSubmitting || uploading) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                            Update Listing
-                        </Button>
-                    </form>
-                </CardContent>
-            </Card>
+                    <label
+                        className="flex flex-col items-center justify-center cursor-pointer transition-colors"
+                        style={{
+                            border: "1.5px dashed #dddddd",
+                            borderRadius: 8,
+                            padding: "24px",
+                            backgroundColor: totalImages >= 10 ? "#f7f7f7" : "#ffffff",
+                        }}
+                        onMouseEnter={(e) => (e.currentTarget.style.borderColor = "#929292")}
+                        onMouseLeave={(e) => (e.currentTarget.style.borderColor = "#dddddd")}
+                    >
+                        <input
+                            type="file"
+                            accept="image/*"
+                            multiple
+                            className="sr-only"
+                            onChange={onSelectImages}
+                            disabled={totalImages >= 10}
+                        />
+                        <p style={{ fontSize: 14, color: "#6a6a6a", textAlign: "center" }}>
+                            {totalImages >= 10 ? "Maximum 10 photos reached" : "Click to add more photos"}
+                        </p>
+                    </label>
+
+                    {previews.length > 0 && (
+                        <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 mt-3">
+                            {previews.map((src, index) => (
+                                <div
+                                    key={`new-${index}`}
+                                    className="relative aspect-square overflow-hidden"
+                                    style={{ borderRadius: 8, border: "1px solid #ebebeb" }}
+                                >
+                                    <img src={src} alt={`New ${index}`} className="h-full w-full object-cover" />
+                                    <button
+                                        type="button"
+                                        onClick={() => removeSelectedImage(index)}
+                                        className="absolute top-1 right-1 flex items-center justify-center"
+                                        style={{
+                                            width: 22, height: 22, borderRadius: "50%",
+                                            backgroundColor: "rgba(0,0,0,0.6)",
+                                            border: "none", cursor: "pointer",
+                                        }}
+                                    >
+                                        <X className="h-3 w-3" style={{ color: "#ffffff" }} />
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+
+                <button
+                    type="submit"
+                    disabled={busy}
+                    className="flex items-center justify-center gap-2 transition-colors"
+                    style={{
+                        backgroundColor: busy ? "#ffd1da" : "#ff385c",
+                        color: "#ffffff",
+                        borderRadius: 8,
+                        padding: "14px 24px",
+                        height: 48,
+                        fontSize: 16,
+                        fontWeight: 500,
+                        border: "none",
+                        cursor: busy ? "not-allowed" : "pointer",
+                        lineHeight: 1.25,
+                    }}
+                    onMouseEnter={(e) => { if (!busy) e.currentTarget.style.backgroundColor = "#e00b41" }}
+                    onMouseLeave={(e) => { if (!busy) e.currentTarget.style.backgroundColor = "#ff385c" }}
+                >
+                    {busy && <Loader2 className="h-4 w-4 animate-spin" />}
+                    Update Listing
+                </button>
+            </form>
         </div>
     )
 }
