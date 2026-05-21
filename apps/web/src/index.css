@@ -8,6 +8,17 @@
   --font-sans: "Inter", "Circular", -apple-system, system-ui, "Helvetica Neue", sans-serif;
   --radius: 0.875rem;
 
+  /* DESIGN.md tokens not covered by existing shadcn variables */
+  --color-rausch-active: #e00b41;
+  --color-rausch-disabled: #ffd1da;
+  --color-hairline-soft: #ebebeb;
+  --color-muted-soft: #929292;
+  --color-body: #3f3f3f;
+
+  /* Named radius tokens */
+  --radius-card: 14px;
+  --radius-button: 8px;
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
 
@@ -134,23 +145,23 @@
 /* Shared form field — focus border handled in CSS to avoid react-hook-form onBlur conflicts */
 .form-field {
   width: 100%;
-  background-color: #ffffff;
-  border: 1px solid #dddddd;
-  border-radius: 8px;
+  background-color: var(--background);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-button);
   padding: 0 12px;
-  font-size: 16px;
-  color: #222222;
+  font-size: 1rem;
+  color: var(--foreground);
   outline: none;
   box-sizing: border-box;
   font-family: inherit;
 }
 
 .form-field:focus {
-  border: 2px solid #222222;
+  border: 2px solid var(--foreground);
 }
 
 .form-field::placeholder {
-  color: #929292;
+  color: var(--color-muted-soft);
 }
 
 /* Design-system shadow tier — the one elevation used in the entire system */

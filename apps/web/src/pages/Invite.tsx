@@ -71,46 +71,28 @@ export default function Invite() {
 
     if (mode === "accept") {
         return (
-            <div className="flex items-center justify-center px-6" style={{ minHeight: "60vh" }}>
-                <div
-                    className="w-full max-w-sm text-center flex flex-col items-center gap-5"
-                    style={{
-                        border: "1px solid #dddddd",
-                        borderRadius: 14,
-                        padding: "40px 32px",
-                        backgroundColor: "#ffffff",
-                    }}
-                >
-                    <h1 style={{ fontSize: 22, fontWeight: 600, color: "#222222" }}>Mates Rates Invite</h1>
+            <div className="flex items-center justify-center px-6 min-h-[60vh]">
+                <div className="w-full max-w-sm text-center flex flex-col items-center gap-5 border border-border rounded-card px-8 py-10 bg-background">
+                    <h1 className="text-[22px] font-semibold text-foreground">Mates Rates Invite</h1>
 
                     {status === "loading" && (
-                        <Loader2 className="h-10 w-10 animate-spin" style={{ color: "#ff385c" }} />
+                        <Loader2 className="h-10 w-10 animate-spin text-primary" />
                     )}
                     {status === "success" && (
-                        <CheckCircle className="h-10 w-10" style={{ color: "#22a06b" }} />
+                        <CheckCircle className="h-10 w-10 text-[#22a06b]" />
                     )}
                     {status === "error" && (
-                        <XCircle className="h-10 w-10" style={{ color: "#c13515" }} />
+                        <XCircle className="h-10 w-10 text-destructive" />
                     )}
 
                     {message && (
-                        <p style={{ fontSize: 16, color: "#3f3f3f" }}>{message}</p>
+                        <p className="text-base text-body">{message}</p>
                     )}
 
                     {status === "error" && (
                         <button
                             onClick={() => navigate("/dashboard")}
-                            style={{
-                                backgroundColor: "#ff385c",
-                                color: "#ffffff",
-                                borderRadius: 8,
-                                padding: "14px 24px",
-                                height: 48,
-                                fontSize: 16,
-                                fontWeight: 500,
-                                border: "none",
-                                cursor: "pointer",
-                            }}
+                            className="bg-primary hover:bg-rausch-active text-primary-foreground rounded-button px-6 h-12 text-base font-medium border-none cursor-pointer transition-colors"
                         >
                             Go to Dashboard
                         </button>
@@ -121,33 +103,16 @@ export default function Invite() {
     }
 
     return (
-        <div className="flex items-center justify-center px-6" style={{ minHeight: "60vh" }}>
-            <div
-                className="w-full max-w-sm flex flex-col items-center gap-6"
-                style={{
-                    border: "1px solid #dddddd",
-                    borderRadius: 14,
-                    padding: "40px 32px",
-                    backgroundColor: "#ffffff",
-                    textAlign: "center",
-                }}
-            >
-                <h1 style={{ fontSize: 22, fontWeight: 600, color: "#222222" }}>Invite a Mate</h1>
-                <p style={{ fontSize: 16, color: "#6a6a6a", lineHeight: 1.5 }}>
+        <div className="flex items-center justify-center px-6 min-h-[60vh]">
+            <div className="w-full max-w-sm flex flex-col items-center gap-6 text-center border border-border rounded-card px-8 py-10 bg-background">
+                <h1 className="text-[22px] font-semibold text-foreground">Invite a Mate</h1>
+                <p className="text-base text-muted-foreground leading-normal">
                     Generate a unique link to invite your friends to Mates Rates.
                 </p>
 
                 {status === "success" && generatedLink && (
-                    <div
-                        className="w-full text-left"
-                        style={{
-                            border: "1px solid #dddddd",
-                            borderRadius: 8,
-                            padding: "12px 14px",
-                            backgroundColor: "#f7f7f7",
-                        }}
-                    >
-                        <p style={{ fontSize: 12, fontFamily: "monospace", color: "#3f3f3f", wordBreak: "break-all" }}>
+                    <div className="w-full text-left border border-border rounded-button px-3.5 py-3 bg-muted">
+                        <p className="text-xs font-mono text-body break-all">
                             {generatedLink}
                         </p>
                     </div>
@@ -156,21 +121,7 @@ export default function Invite() {
                 <button
                     onClick={handleCreateInvite}
                     disabled={status === "loading"}
-                    className="w-full flex items-center justify-center gap-2 transition-colors"
-                    style={{
-                        backgroundColor: status === "loading" ? "#ffd1da" : "#ff385c",
-                        color: "#ffffff",
-                        borderRadius: 8,
-                        padding: "14px 24px",
-                        height: 48,
-                        fontSize: 16,
-                        fontWeight: 500,
-                        border: "none",
-                        cursor: status === "loading" ? "not-allowed" : "pointer",
-                        lineHeight: 1.25,
-                    }}
-                    onMouseEnter={(e) => { if (status !== "loading") e.currentTarget.style.backgroundColor = "#e00b41" }}
-                    onMouseLeave={(e) => { if (status !== "loading") e.currentTarget.style.backgroundColor = "#ff385c" }}
+                    className="w-full flex items-center justify-center gap-2 bg-primary hover:bg-rausch-active disabled:bg-rausch-disabled text-primary-foreground rounded-button h-12 text-base font-medium border-none cursor-pointer disabled:cursor-not-allowed leading-tight transition-colors"
                 >
                     {status === "loading"
                         ? <Loader2 className="h-4 w-4 animate-spin" />
@@ -180,24 +131,14 @@ export default function Invite() {
                 </button>
 
                 {message && status !== "idle" && (
-                    <p style={{
-                        fontSize: 14,
-                        color: status === "error" ? "#c13515" : "#22a06b",
-                    }}>
+                    <p className={`text-sm ${status === "error" ? "text-destructive" : "text-[#22a06b]"}`}>
                         {message}
                     </p>
                 )}
 
                 <button
                     onClick={() => navigate("/dashboard")}
-                    style={{
-                        background: "none",
-                        border: "none",
-                        cursor: "pointer",
-                        fontSize: 14,
-                        color: "#6a6a6a",
-                        textDecoration: "underline",
-                    }}
+                    className="bg-transparent border-none cursor-pointer text-sm text-muted-foreground underline"
                 >
                     Back to Dashboard
                 </button>

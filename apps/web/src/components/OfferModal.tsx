@@ -21,7 +21,6 @@ export function OfferModal({ listingId, ListingTitle }: { listingId: number, Lis
         if (!amount) return
         setLoading(true)
         try {
-            // Convert to cents/pence implies input is major units (e.g. 50.00)
             const valueInCents = Math.round(parseFloat(amount) * 100)
 
             const res = await fetch(`${import.meta.env.VITE_API_URL}/api/listings/${listingId}/offers`, {
@@ -51,54 +50,28 @@ export function OfferModal({ listingId, ListingTitle }: { listingId: number, Lis
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
                 <button
-                    className="w-full flex items-center justify-center transition-colors"
-                    style={{
-                        backgroundColor: "#ff385c",
-                        color: "#ffffff",
-                        borderRadius: 8,
-                        padding: "14px 24px",
-                        height: 48,
-                        fontSize: 16,
-                        fontWeight: 500,
-                        border: "none",
-                        cursor: "pointer",
-                        lineHeight: 1.25,
-                    }}
-                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#e00b41")}
-                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#ff385c")}
+                    className="w-full flex items-center justify-center bg-primary hover:bg-rausch-active text-primary-foreground rounded-button h-12 px-6 text-base font-medium border-none cursor-pointer leading-tight transition-colors"
                 >
                     Make an Offer
                 </button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px] bg-background">
                 <DialogHeader>
-                    <DialogTitle style={{ fontSize: 20, fontWeight: 600, color: "#222222" }}>Make an Offer</DialogTitle>
-                    <DialogDescription style={{ fontSize: 14, color: "#6a6a6a" }}>
+                    <DialogTitle className="text-xl font-semibold text-foreground">Make an Offer</DialogTitle>
+                    <DialogDescription className="text-sm text-muted-foreground">
                         Enter your price for {ListingTitle}. The seller will be notified.
                     </DialogDescription>
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
                     <div className="flex items-center gap-3">
-                        <span style={{ fontSize: 20, fontWeight: 600, color: "#222222" }}>£</span>
+                        <span className="text-xl font-semibold text-foreground">£</span>
                         <input
                             id="amount"
                             type="number"
                             value={amount}
                             onChange={(e) => setAmount(e.target.value)}
                             placeholder="0.00"
-                            style={{
-                                flex: 1,
-                                height: 56,
-                                border: "1px solid #dddddd",
-                                borderRadius: 8,
-                                padding: "0 12px",
-                                fontSize: 18,
-                                color: "#222222",
-                                outline: "none",
-                                backgroundColor: "#ffffff",
-                            }}
-                            onFocus={(e) => (e.currentTarget.style.border = "2px solid #222222")}
-                            onBlur={(e) => (e.currentTarget.style.border = "1px solid #dddddd")}
+                            className="form-field h-14 text-lg flex-1"
                         />
                     </div>
                 </div>
@@ -106,20 +79,7 @@ export function OfferModal({ listingId, ListingTitle }: { listingId: number, Lis
                     <button
                         onClick={handleOffer}
                         disabled={loading}
-                        className="flex items-center justify-center gap-2 transition-colors"
-                        style={{
-                            backgroundColor: loading ? "#ffd1da" : "#ff385c",
-                            color: "#ffffff",
-                            borderRadius: 8,
-                            padding: "14px 24px",
-                            height: 48,
-                            fontSize: 16,
-                            fontWeight: 500,
-                            border: "none",
-                            cursor: loading ? "not-allowed" : "pointer",
-                        }}
-                        onMouseEnter={(e) => { if (!loading) e.currentTarget.style.backgroundColor = "#e00b41" }}
-                        onMouseLeave={(e) => { if (!loading) e.currentTarget.style.backgroundColor = "#ff385c" }}
+                        className="flex items-center justify-center gap-2 bg-primary hover:bg-rausch-active disabled:bg-rausch-disabled text-primary-foreground rounded-button h-12 px-6 text-base font-medium border-none cursor-pointer disabled:cursor-not-allowed transition-colors"
                     >
                         {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Send Offer"}
                     </button>

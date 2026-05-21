@@ -25,17 +25,14 @@ function ImageGallery({ images, title }: { images: string[]; title: string }) {
 
     if (!images || images.length === 0) {
         return (
-            <div
-                className="w-full aspect-square flex items-center justify-center"
-                style={{ backgroundColor: "#f2f2f2", borderRadius: 14, color: "#929292", fontSize: 14 }}
-            >
+            <div className="w-full aspect-square flex items-center justify-center bg-accent rounded-card text-muted-soft text-sm">
                 No image
             </div>
         )
     }
 
     return (
-        <div className="relative w-full aspect-square overflow-hidden" style={{ borderRadius: 14 }}>
+        <div className="relative w-full aspect-square overflow-hidden rounded-card">
             <img
                 src={images[current]}
                 alt={`${title} ${current + 1}`}
@@ -45,39 +42,22 @@ function ImageGallery({ images, title }: { images: string[]; title: string }) {
                 <>
                     <button
                         onClick={() => setCurrent((c) => (c - 1 + images.length) % images.length)}
-                        className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center justify-center transition-colors"
-                        style={{
-                            width: 32, height: 32, borderRadius: "50%",
-                            backgroundColor: "#ffffff",
-                            border: "none", cursor: "pointer",
-                            boxShadow: "0 1px 4px rgba(0,0,0,0.18)",
-                        }}
+                        className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center justify-center h-8 w-8 rounded-full bg-white shadow border-none cursor-pointer transition-colors"
                     >
-                        <ChevronLeft className="h-4 w-4" style={{ color: "#222222" }} />
+                        <ChevronLeft className="h-4 w-4 text-foreground" />
                     </button>
                     <button
                         onClick={() => setCurrent((c) => (c + 1) % images.length)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center justify-center transition-colors"
-                        style={{
-                            width: 32, height: 32, borderRadius: "50%",
-                            backgroundColor: "#ffffff",
-                            border: "none", cursor: "pointer",
-                            boxShadow: "0 1px 4px rgba(0,0,0,0.18)",
-                        }}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center justify-center h-8 w-8 rounded-full bg-white shadow border-none cursor-pointer transition-colors"
                     >
-                        <ChevronRight className="h-4 w-4" style={{ color: "#222222" }} />
+                        <ChevronRight className="h-4 w-4 text-foreground" />
                     </button>
                     <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
                         {images.map((_, i) => (
                             <button
                                 key={i}
                                 onClick={() => setCurrent(i)}
-                                className="transition-all"
-                                style={{
-                                    width: 6, height: 6, borderRadius: "50%",
-                                    backgroundColor: i === current ? "#222222" : "rgba(255,255,255,0.7)",
-                                    border: "none", cursor: "pointer", padding: 0,
-                                }}
+                                className={`h-1.5 w-1.5 rounded-full border-none cursor-pointer p-0 transition-all ${i === current ? "bg-foreground" : "bg-white/70"}`}
                             />
                         ))}
                     </div>
@@ -128,115 +108,78 @@ export default function ListingDetails() {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center" style={{ minHeight: "60vh" }}>
-                <Loader2 className="animate-spin" style={{ color: "#ff385c", width: 32, height: 32 }} />
+            <div className="flex items-center justify-center min-h-[60vh]">
+                <Loader2 className="animate-spin text-primary h-8 w-8" />
             </div>
         )
     }
     if (!listing) {
-        return <div className="p-8" style={{ color: "#6a6a6a" }}>Listing not found</div>
+        return <div className="p-8 text-muted-foreground">Listing not found</div>
     }
 
     const isOwner = user?.id === listing.userId
 
     return (
-        <div className="mx-auto max-w-5xl px-6 md:px-10" style={{ paddingTop: 32, paddingBottom: 64 }}>
-            {/* Back */}
+        <div className="mx-auto max-w-5xl px-6 md:px-10 pt-8 pb-16">
             <button
                 onClick={() => navigate(-1)}
-                className="flex items-center gap-1.5 mb-6 transition-colors"
-                style={{
-                    background: "none", border: "none", cursor: "pointer",
-                    fontSize: 14, color: "#222222", fontWeight: 400, padding: 0,
-                }}
-                onMouseEnter={(e) => (e.currentTarget.style.color = "#6a6a6a")}
-                onMouseLeave={(e) => (e.currentTarget.style.color = "#222222")}
+                className="flex items-center gap-1.5 mb-6 bg-transparent border-none p-0 cursor-pointer text-sm text-foreground hover:text-muted-foreground transition-colors"
             >
                 <ArrowLeft className="h-4 w-4" /> Back
             </button>
 
             <div className="grid md:grid-cols-2 gap-10">
-                {/* Left — images */}
                 <div>
                     <ImageGallery images={listing.images} title={listing.title} />
                 </div>
 
-                {/* Right — details + reservation card */}
                 <div className="flex flex-col gap-6">
-                    {/* Title & category */}
                     <div>
-                        <p
-                            className="capitalize mb-1"
-                            style={{ fontSize: 13, color: "#6a6a6a", fontWeight: 400 }}
-                        >
+                        <p className="capitalize mb-1 text-[13px] text-muted-foreground">
                             {listing.category}
                         </p>
-                        <h1 style={{ fontSize: 22, fontWeight: 500, color: "#222222", lineHeight: 1.18 }}>
+                        <h1 className="text-[22px] font-medium text-foreground leading-[1.18]">
                             {listing.title}
                         </h1>
                     </div>
 
-                    {/* Seller */}
                     {listing.seller?.name && (
-                        <div
-                            className="flex items-center gap-3 pb-5"
-                            style={{ borderBottom: "1px solid #ebebeb" }}
-                        >
+                        <div className="flex items-center gap-3 pb-5 border-b border-hairline-soft">
                             {listing.seller.avatarUrl ? (
                                 <img
                                     src={listing.seller.avatarUrl}
-                                    className="h-10 w-10 rounded-full object-cover"
-                                    style={{ border: "1px solid #dddddd" }}
+                                    className="h-10 w-10 rounded-full object-cover border border-border"
                                     alt={listing.seller.name}
                                 />
                             ) : (
-                                <div
-                                    className="h-10 w-10 rounded-full flex items-center justify-center"
-                                    style={{ backgroundColor: "#f2f2f2", fontSize: 14, fontWeight: 600, color: "#222222" }}
-                                >
+                                <div className="h-10 w-10 rounded-full flex items-center justify-center bg-accent text-sm font-semibold text-foreground">
                                     {listing.seller.name[0]?.toUpperCase()}
                                 </div>
                             )}
                             <div>
-                                <p style={{ fontSize: 14, fontWeight: 600, color: "#222222" }}>
+                                <p className="text-sm font-semibold text-foreground">
                                     {listing.seller.name}
                                 </p>
-                                <p style={{ fontSize: 13, color: "#6a6a6a" }}>Selling for mates</p>
+                                <p className="text-[13px] text-muted-foreground">Selling for mates</p>
                             </div>
                         </div>
                     )}
 
-                    {/* Description */}
-                    <div style={{ borderBottom: "1px solid #ebebeb", paddingBottom: 20 }}>
-                        <h3 style={{ fontSize: 16, fontWeight: 600, color: "#222222", marginBottom: 10 }}>
+                    <div className="border-b border-hairline-soft pb-5">
+                        <h3 className="text-base font-semibold text-foreground mb-2.5">
                             About this item
                         </h3>
-                        <p
-                            className="whitespace-pre-wrap"
-                            style={{ fontSize: 16, color: "#3f3f3f", lineHeight: 1.5 }}
-                        >
+                        <p className="whitespace-pre-wrap text-base text-body leading-normal">
                             {listing.description}
                         </p>
                     </div>
 
-                    {/* Reservation card */}
-                    <div
-                        className="bg-white"
-                        style={{
-                            border: "1px solid #dddddd",
-                            borderRadius: 14,
-                            padding: 24,
-                            boxShadow: "rgba(0,0,0,0.02) 0 0 0 1px, rgba(0,0,0,0.04) 0 2px 6px 0, rgba(0,0,0,0.1) 0 4px 8px 0",
-                        }}
-                    >
+                    <div className="bg-background border border-border rounded-card p-6 shadow-card-hover">
                         <div className="flex items-baseline justify-between mb-5">
-                            <span style={{ fontSize: 21, fontWeight: 700, color: "#222222" }}>
+                            <span className="text-[21px] font-bold text-foreground">
                                 £{(listing.price / 100).toFixed(2)}
                             </span>
-                            <span
-                                className="capitalize"
-                                style={{ fontSize: 13, color: "#6a6a6a" }}
-                            >
+                            <span className="capitalize text-[13px] text-muted-foreground">
                                 {listing.status || "available"}
                             </span>
                         </div>
@@ -245,39 +188,13 @@ export default function ListingDetails() {
                             <div className="flex gap-3">
                                 <button
                                     onClick={() => navigate(`/listings/${listing.id}/edit`)}
-                                    className="flex-1 transition-colors"
-                                    style={{
-                                        backgroundColor: "#ffffff",
-                                        color: "#222222",
-                                        border: "1px solid #222222",
-                                        borderRadius: 8,
-                                        padding: "13px 0",
-                                        fontSize: 16,
-                                        fontWeight: 500,
-                                        cursor: "pointer",
-                                        lineHeight: 1.25,
-                                    }}
-                                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#f7f7f7")}
-                                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#ffffff")}
+                                    className="flex-1 bg-background hover:bg-muted text-foreground border border-foreground rounded-button py-3 text-base font-medium cursor-pointer leading-tight transition-colors"
                                 >
                                     Edit
                                 </button>
                                 <button
                                     onClick={handleDelete}
-                                    className="flex-1 transition-colors"
-                                    style={{
-                                        backgroundColor: "#ffffff",
-                                        color: "#c13515",
-                                        border: "1px solid #c13515",
-                                        borderRadius: 8,
-                                        padding: "13px 0",
-                                        fontSize: 16,
-                                        fontWeight: 500,
-                                        cursor: "pointer",
-                                        lineHeight: 1.25,
-                                    }}
-                                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#fff5f3")}
-                                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#ffffff")}
+                                    className="flex-1 bg-background hover:bg-[#fff5f3] text-destructive border border-destructive rounded-button py-3 text-base font-medium cursor-pointer leading-tight transition-colors"
                                 >
                                     Delete
                                 </button>
@@ -289,8 +206,7 @@ export default function ListingDetails() {
                 </div>
             </div>
 
-            {/* Messages */}
-            <div style={{ marginTop: 48, borderTop: "1px solid #ebebeb", paddingTop: 40 }}>
+            <div className="mt-12 border-t border-hairline-soft pt-10">
                 <ListingMessages listingId={listing.id} />
             </div>
         </div>

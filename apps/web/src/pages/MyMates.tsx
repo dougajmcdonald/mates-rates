@@ -29,77 +29,49 @@ export default function MyMates() {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center" style={{ minHeight: "50vh" }}>
-                <Loader2 className="animate-spin" style={{ color: "#ff385c", width: 32, height: 32 }} />
+            <div className="flex items-center justify-center min-h-[50vh]">
+                <Loader2 className="animate-spin text-primary h-8 w-8" />
             </div>
         )
     }
 
     return (
-        <div className="mx-auto max-w-4xl px-6 md:px-10" style={{ paddingTop: 48, paddingBottom: 64 }}>
+        <div className="mx-auto max-w-4xl px-6 md:px-10 pt-12 pb-16">
             <div className="flex items-center justify-between mb-8">
                 <div>
-                    <h1 style={{ fontSize: 28, fontWeight: 700, color: "#222222" }}>My Mates</h1>
+                    <h1 className="text-[28px] font-bold text-foreground">My Mates</h1>
                     {mates.length > 0 && (
-                        <p style={{ fontSize: 14, color: "#6a6a6a", marginTop: 4 }}>
+                        <p className="text-sm text-muted-foreground mt-1">
                             {mates.length} mate{mates.length === 1 ? "" : "s"}
                         </p>
                     )}
                 </div>
                 <Link
                     to="/invite"
-                    className="flex items-center gap-2 transition-colors"
-                    style={{
-                        backgroundColor: "#ff385c",
-                        color: "#ffffff",
-                        borderRadius: 8,
-                        padding: "14px 20px",
-                        height: 48,
-                        fontSize: 16,
-                        fontWeight: 500,
-                        textDecoration: "none",
-                        whiteSpace: "nowrap",
-                    }}
-                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#e00b41")}
-                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#ff385c")}
+                    className="flex items-center gap-2 bg-primary hover:bg-rausch-active text-primary-foreground rounded-button px-5 h-12 text-base font-medium no-underline whitespace-nowrap transition-colors"
                 >
                     Invite a Mate
                 </Link>
             </div>
 
             {mates.length === 0 ? (
-                <div
-                    className="flex flex-col items-center justify-center text-center"
-                    style={{
-                        border: "1.5px dashed #dddddd",
-                        borderRadius: 14,
-                        padding: "64px 24px",
-                    }}
-                >
-                    <Users className="h-10 w-10 mb-4" style={{ color: "#dddddd" }} />
-                    <p style={{ fontSize: 16, fontWeight: 600, color: "#222222", marginBottom: 6 }}>
+                <div className="flex flex-col items-center justify-center text-center border-[1.5px] border-dashed border-border rounded-card py-16 px-6">
+                    <Users className="h-10 w-10 mb-4 text-border" />
+                    <p className="text-base font-semibold text-foreground mb-1.5">
                         No mates yet
                     </p>
-                    <p style={{ fontSize: 14, color: "#6a6a6a", marginBottom: 24 }}>
+                    <p className="text-sm text-muted-foreground mb-6">
                         Invite your friends to get started.
                     </p>
                     <Link
                         to="/invite"
-                        style={{
-                            backgroundColor: "#ff385c",
-                            color: "#ffffff",
-                            borderRadius: 8,
-                            padding: "14px 24px",
-                            fontSize: 16,
-                            fontWeight: 500,
-                            textDecoration: "none",
-                        }}
+                        className="bg-primary hover:bg-rausch-active text-primary-foreground rounded-button px-6 h-12 text-base font-medium no-underline inline-flex items-center transition-colors"
                     >
                         Invite Friends
                     </Link>
                 </div>
             ) : (
-                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                <div className="flex flex-col gap-3">
                     {mates.map((mate) => (
                         <MateCard key={mate.id} mate={mate} />
                     ))}

@@ -15,24 +15,21 @@ export function MateCard({ mate }: MateCardProps) {
 
     return (
         <div
-            className="flex items-center gap-4 p-5 bg-white cursor-pointer transition-all duration-200 hover:shadow-card-hover"
-            style={{ borderRadius: 14, border: "1px solid #dddddd" }}
+            className="flex items-center gap-4 p-5 bg-background cursor-pointer transition-all duration-200 hover:shadow-card-hover rounded-card border border-border"
             onClick={() => navigate(`/mates/${mate.id}`)}
         >
-            <Avatar className="h-14 w-14 shrink-0" style={{ border: "2px solid #ebebeb" }}>
+            <Avatar className="h-14 w-14 shrink-0 border-2 border-hairline-soft">
                 <AvatarImage src={mate.avatarUrl} alt={mate.name} />
-                <AvatarFallback
-                    style={{ backgroundColor: "#f2f2f2", color: "#222222", fontSize: 16, fontWeight: 600 }}
-                >
+                <AvatarFallback className="bg-accent text-foreground text-base font-semibold">
                     {mate.name?.[0]?.toUpperCase()}
                 </AvatarFallback>
             </Avatar>
 
             <div className="min-w-0 flex-1">
-                <p style={{ fontSize: 16, fontWeight: 600, color: "#222222", lineHeight: 1.25 }} className="truncate">
+                <p className="truncate text-base font-semibold text-foreground leading-tight">
                     {mate.name}
                 </p>
-                <p style={{ fontSize: 14, color: "#6a6a6a", marginTop: 2, lineHeight: 1.43 }}>
+                <p className="text-sm text-muted-foreground mt-0.5 leading-normal">
                     {mate.listingCount === 0
                         ? "No active listings"
                         : `${mate.listingCount} active listing${mate.listingCount === 1 ? "" : "s"}`}
@@ -41,21 +38,7 @@ export function MateCard({ mate }: MateCardProps) {
 
             <button
                 onClick={(e) => { e.stopPropagation(); navigate(`/mates/${mate.id}`) }}
-                className="shrink-0 transition-colors"
-                style={{
-                    backgroundColor: "#ff385c",
-                    color: "#ffffff",
-                    borderRadius: 8,
-                    padding: "10px 16px",
-                    fontSize: 14,
-                    fontWeight: 500,
-                    border: "none",
-                    cursor: "pointer",
-                    lineHeight: 1.29,
-                    whiteSpace: "nowrap",
-                }}
-                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#e00b41")}
-                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#ff385c")}
+                className="shrink-0 bg-primary hover:bg-rausch-active text-primary-foreground rounded-button px-4 py-2.5 text-sm font-medium border-none cursor-pointer whitespace-nowrap transition-colors leading-tight"
             >
                 View Listings
             </button>

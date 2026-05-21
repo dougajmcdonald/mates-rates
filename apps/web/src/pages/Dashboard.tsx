@@ -21,12 +21,8 @@ type Listing = {
 function PropertyCard({ item, showSeller = false }: { item: Listing; showSeller?: boolean }) {
   return (
     <Link to={`/listings/${item.id}`} className="group block">
-      <div
-        className="overflow-hidden transition-all duration-200 group-hover:shadow-card-hover"
-        style={{ borderRadius: 14 }}
-      >
-        {/* Photo */}
-        <div className="relative aspect-square w-full overflow-hidden bg-[#f2f2f2]" style={{ borderRadius: 14 }}>
+      <div className="overflow-hidden rounded-card transition-all duration-200 group-hover:shadow-card-hover">
+        <div className="relative aspect-square w-full overflow-hidden bg-accent rounded-card">
           {item.images?.[0] ? (
             <img
               src={item.images[0]}
@@ -34,38 +30,20 @@ function PropertyCard({ item, showSeller = false }: { item: Listing; showSeller?
               className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
             />
           ) : (
-            <div className="flex h-full items-center justify-center" style={{ color: "#929292", fontSize: 13 }}>
+            <div className="flex h-full items-center justify-center text-muted-soft text-[13px]">
               No image
             </div>
           )}
-          {/* Price badge */}
-          <div
-            className="absolute top-3 right-3 px-2 py-1"
-            style={{
-              backgroundColor: "rgba(255,255,255,0.92)",
-              borderRadius: 8,
-              fontSize: 13,
-              fontWeight: 600,
-              color: "#222222",
-              backdropFilter: "blur(4px)",
-            }}
-          >
+          <div className="absolute top-3 right-3 px-2 py-1 bg-white/90 backdrop-blur-sm rounded-button text-[13px] font-semibold text-foreground">
             £{(item.price / 100).toFixed(2)}
           </div>
         </div>
 
-        {/* Meta */}
         <div className="pt-3 pb-1 px-0.5">
-          <div
-            className="truncate"
-            style={{ fontSize: 14, fontWeight: 600, color: "#222222", lineHeight: 1.25 }}
-          >
+          <div className="truncate text-sm font-semibold text-foreground leading-tight">
             {item.title}
           </div>
-          <div
-            className="capitalize mt-0.5"
-            style={{ fontSize: 14, color: "#6a6a6a", lineHeight: 1.43 }}
-          >
+          <div className="capitalize mt-0.5 text-sm text-muted-foreground leading-normal">
             {item.category}
           </div>
           {showSeller && item.seller?.name && (
@@ -77,14 +55,11 @@ function PropertyCard({ item, showSeller = false }: { item: Listing; showSeller?
                   alt={item.seller.name}
                 />
               ) : (
-                <div
-                  className="h-5 w-5 rounded-full flex items-center justify-center"
-                  style={{ backgroundColor: "#f2f2f2", fontSize: 10, color: "#6a6a6a" }}
-                >
+                <div className="h-5 w-5 rounded-full flex items-center justify-center bg-accent text-[10px] text-muted-foreground">
                   {item.seller.name[0]?.toUpperCase()}
                 </div>
               )}
-              <span style={{ fontSize: 13, color: "#6a6a6a" }}>{item.seller.name}</span>
+              <span className="text-[13px] text-muted-foreground">{item.seller.name}</span>
             </div>
           )}
         </div>
@@ -105,18 +80,9 @@ function SectionHeader({
   return (
     <div className="flex items-center justify-between mb-5">
       <div className="flex items-center gap-3">
-        <h2 style={{ fontSize: 22, fontWeight: 600, color: "#222222", lineHeight: 1.2 }}>{title}</h2>
+        <h2 className="text-[22px] font-semibold text-foreground leading-tight">{title}</h2>
         {count != null && count > 0 && (
-          <span
-            className="px-2.5 py-0.5"
-            style={{
-              fontSize: 12,
-              fontWeight: 600,
-              color: "#6a6a6a",
-              backgroundColor: "#f2f2f2",
-              borderRadius: 9999,
-            }}
-          >
+          <span className="px-2.5 py-0.5 text-xs font-semibold text-muted-foreground bg-accent rounded-full">
             {count}
           </span>
         )}
@@ -181,102 +147,61 @@ export default function Dashboard() {
 
   if (loading && listings.length === 0) {
     return (
-      <div
-        className="flex items-center justify-center"
-        style={{ minHeight: "50vh", color: "#6a6a6a", fontSize: 16 }}
-      >
+      <div className="flex items-center justify-center min-h-[50vh] text-muted-foreground text-base">
         Loading…
       </div>
     )
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-6 md:px-10" style={{ paddingTop: 48, paddingBottom: 64 }}>
+    <div className="mx-auto max-w-7xl px-6 md:px-10 pt-12 pb-16">
 
-      {/* Page header */}
-      <div
-        className="flex justify-between items-start pb-8 mb-2"
-        style={{ borderBottom: "1px solid #ebebeb" }}
-      >
+      <div className="flex justify-between items-start pb-8 mb-2 border-b border-hairline-soft">
         <div>
-          <h1 style={{ fontSize: 28, fontWeight: 700, color: "#222222", lineHeight: 1.43 }}>
+          <h1 className="text-[28px] font-bold text-foreground leading-[1.43]">
             Dashboard
           </h1>
-          <p style={{ fontSize: 16, color: "#6a6a6a", marginTop: 4, lineHeight: 1.5 }}>
+          <p className="text-base text-muted-foreground mt-1 leading-normal">
             Manage your listings, offers, and find deals from mates.
           </p>
         </div>
         <Link
           to="/listings/new"
-          className="flex items-center gap-2 transition-colors"
-          style={{
-            backgroundColor: "#ff385c",
-            color: "#ffffff",
-            borderRadius: 8,
-            padding: "14px 24px",
-            height: 48,
-            fontSize: 16,
-            fontWeight: 500,
-            lineHeight: 1.25,
-            textDecoration: "none",
-            whiteSpace: "nowrap",
-          }}
-          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#e00b41")}
-          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#ff385c")}
+          className="flex items-center gap-2 bg-primary hover:bg-rausch-active text-primary-foreground rounded-button px-6 h-12 text-base font-medium transition-colors no-underline whitespace-nowrap shrink-0"
         >
           <Plus className="h-4 w-4" />
           New Listing
         </Link>
       </div>
 
-      {/* My Listings */}
-      <section style={{ marginTop: 48 }}>
+      <section className="mt-12">
         <SectionHeader
           title="My Listings"
           count={myListings.length}
           action={
             <Link
               to="/listings/new"
-              style={{ fontSize: 14, color: "#ff385c", fontWeight: 400, textDecoration: "none" }}
-              onMouseEnter={(e) => (e.currentTarget.style.textDecoration = "underline")}
-              onMouseLeave={(e) => (e.currentTarget.style.textDecoration = "none")}
+              className="text-sm text-primary hover:underline font-normal no-underline"
             >
               + Add listing
             </Link>
           }
         />
         {myListings.length > 0 ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5" style={{ gap: 16 }}>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
             {myListings.map((item) => (
               <PropertyCard key={item.id} item={item} />
             ))}
           </div>
         ) : (
-          <div
-            className="flex flex-col items-center justify-center text-center"
-            style={{
-              border: "1.5px dashed #dddddd",
-              borderRadius: 14,
-              padding: "48px 24px",
-            }}
-          >
-            <p style={{ fontSize: 16, fontWeight: 600, color: "#222222" }}>No listings yet</p>
-            <p style={{ fontSize: 14, color: "#6a6a6a", marginTop: 6, marginBottom: 20 }}>
+          <div className="flex flex-col items-center justify-center text-center border-[1.5px] border-dashed border-border rounded-card py-12 px-6">
+            <p className="text-base font-semibold text-foreground">No listings yet</p>
+            <p className="text-sm text-muted-foreground mt-1.5 mb-5">
               Create your first listing to start selling to your mates.
             </p>
             <Link
               to="/listings/new"
-              style={{
-                backgroundColor: "#ffffff",
-                color: "#222222",
-                border: "1px solid #222222",
-                borderRadius: 8,
-                padding: "13px 23px",
-                fontSize: 16,
-                fontWeight: 500,
-                textDecoration: "none",
-                lineHeight: 1.25,
-              }}
+              className="bg-background hover:bg-muted text-foreground border border-foreground rounded-button py-3 px-6 text-base font-medium no-underline inline-flex items-center transition-colors"
             >
               Create Listing
             </Link>
@@ -284,44 +209,33 @@ export default function Dashboard() {
         )}
       </section>
 
-      {/* New from Mates */}
-      <section style={{ marginTop: 64 }}>
+      <section className="mt-16">
         <SectionHeader
           title="New from Mates"
           count={friendListings.length}
           action={
             <Link
               to="/mates"
-              style={{ fontSize: 14, color: "#6a6a6a", fontWeight: 400, textDecoration: "none" }}
-              onMouseEnter={(e) => (e.currentTarget.style.textDecoration = "underline")}
-              onMouseLeave={(e) => (e.currentTarget.style.textDecoration = "none")}
+              className="text-sm text-muted-foreground hover:underline font-normal no-underline"
             >
               View all mates
             </Link>
           }
         />
         {friendListings.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" style={{ gap: 24 }}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {friendListings.map((item) => (
               <PropertyCard key={item.id} item={item} showSeller />
             ))}
           </div>
         ) : (
-          <div
-            className="text-center"
-            style={{
-              border: "1.5px dashed #dddddd",
-              borderRadius: 14,
-              padding: "48px 24px",
-            }}
-          >
-            <p style={{ fontSize: 14, color: "#6a6a6a" }}>No active listings from your mates right now.</p>
+          <div className="text-center border-[1.5px] border-dashed border-border rounded-card py-12 px-6">
+            <p className="text-sm text-muted-foreground">No active listings from your mates right now.</p>
           </div>
         )}
       </section>
 
-      {/* Offers */}
-      <section style={{ marginTop: 64 }}>
+      <section className="mt-16">
         <OffersTable
           incoming={incomingOffers}
           outgoing={outgoingOffers}

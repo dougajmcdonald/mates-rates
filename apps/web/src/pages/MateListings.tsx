@@ -9,12 +9,8 @@ function ListingCard({ item }: { item: any }) {
 
     return (
         <Link to={`/listings/${item.id}`} className="group block">
-            <div
-                className="overflow-hidden transition-all duration-200 group-hover:shadow-card-hover"
-                style={{ borderRadius: 14 }}
-            >
-                {/* Photo */}
-                <div className="relative aspect-square w-full overflow-hidden bg-[#f2f2f2]" style={{ borderRadius: 14 }}>
+            <div className="overflow-hidden rounded-card transition-all duration-200 group-hover:shadow-card-hover">
+                <div className="relative aspect-square w-full overflow-hidden bg-accent rounded-card">
                     {images.length > 0 ? (
                         <>
                             <img
@@ -26,72 +22,39 @@ function ListingCard({ item }: { item: any }) {
                                 <>
                                     <button
                                         onClick={(e) => { e.preventDefault(); setCurrent((c) => (c - 1 + images.length) % images.length) }}
-                                        className="absolute left-2 top-1/2 -translate-y-1/2 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                                        style={{
-                                            width: 28, height: 28, borderRadius: "50%",
-                                            backgroundColor: "#ffffff",
-                                            border: "none", cursor: "pointer",
-                                            boxShadow: "0 1px 4px rgba(0,0,0,0.18)",
-                                        }}
+                                        className="absolute left-2 top-1/2 -translate-y-1/2 flex items-center justify-center h-7 w-7 rounded-full bg-white shadow border-none cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity"
                                     >
-                                        <ChevronLeft className="h-3.5 w-3.5" style={{ color: "#222222" }} />
+                                        <ChevronLeft className="h-3.5 w-3.5 text-foreground" />
                                     </button>
                                     <button
                                         onClick={(e) => { e.preventDefault(); setCurrent((c) => (c + 1) % images.length) }}
-                                        className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                                        style={{
-                                            width: 28, height: 28, borderRadius: "50%",
-                                            backgroundColor: "#ffffff",
-                                            border: "none", cursor: "pointer",
-                                            boxShadow: "0 1px 4px rgba(0,0,0,0.18)",
-                                        }}
+                                        className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center justify-center h-7 w-7 rounded-full bg-white shadow border-none cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity"
                                     >
-                                        <ChevronRight className="h-3.5 w-3.5" style={{ color: "#222222" }} />
+                                        <ChevronRight className="h-3.5 w-3.5 text-foreground" />
                                     </button>
                                 </>
                             )}
                         </>
                     ) : (
-                        <div className="flex h-full items-center justify-center" style={{ color: "#929292", fontSize: 13 }}>
+                        <div className="flex h-full items-center justify-center text-muted-soft text-[13px]">
                             No image
                         </div>
                     )}
 
-                    {/* Price badge */}
-                    <div
-                        className="absolute top-3 right-3 px-2 py-1"
-                        style={{
-                            backgroundColor: "rgba(255,255,255,0.92)",
-                            borderRadius: 8,
-                            fontSize: 13,
-                            fontWeight: 600,
-                            color: "#222222",
-                            backdropFilter: "blur(4px)",
-                        }}
-                    >
+                    <div className="absolute top-3 right-3 px-2 py-1 bg-white/90 backdrop-blur-sm rounded-button text-[13px] font-semibold text-foreground">
                         £{(item.price / 100).toFixed(2)}
                     </div>
                 </div>
 
-                {/* Meta */}
                 <div className="pt-3 pb-1 px-0.5">
-                    <div
-                        className="truncate"
-                        style={{ fontSize: 14, fontWeight: 600, color: "#222222", lineHeight: 1.25 }}
-                    >
+                    <div className="truncate text-sm font-semibold text-foreground leading-tight">
                         {item.title}
                     </div>
-                    <div
-                        className="capitalize mt-0.5"
-                        style={{ fontSize: 14, color: "#6a6a6a", lineHeight: 1.43 }}
-                    >
+                    <div className="capitalize mt-0.5 text-sm text-muted-foreground leading-normal">
                         {item.category}
                     </div>
                     {item.description && (
-                        <div
-                            className="mt-1 line-clamp-2"
-                            style={{ fontSize: 13, color: "#929292", lineHeight: 1.4 }}
-                        >
+                        <div className="mt-1 line-clamp-2 text-[13px] text-muted-soft leading-snug">
                             {item.description}
                         </div>
                     )}
@@ -128,60 +91,41 @@ export default function MateListings() {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center" style={{ minHeight: "50vh" }}>
-                <Loader2 className="animate-spin" style={{ color: "#ff385c", width: 32, height: 32 }} />
+            <div className="flex items-center justify-center min-h-[50vh]">
+                <Loader2 className="animate-spin text-primary h-8 w-8" />
             </div>
         )
     }
 
     return (
-        <div className="mx-auto max-w-5xl px-6 md:px-10" style={{ paddingTop: 40, paddingBottom: 64 }}>
+        <div className="mx-auto max-w-5xl px-6 md:px-10 pt-10 pb-16">
             <div className="flex items-center gap-3 mb-8">
                 <button
                     onClick={() => navigate(-1)}
-                    className="flex items-center gap-1.5 transition-colors"
-                    style={{
-                        background: "none", border: "none", cursor: "pointer",
-                        fontSize: 14, color: "#222222", fontWeight: 400, padding: 0,
-                    }}
-                    onMouseEnter={(e) => (e.currentTarget.style.color = "#6a6a6a")}
-                    onMouseLeave={(e) => (e.currentTarget.style.color = "#222222")}
+                    className="flex items-center gap-1.5 bg-transparent border-none p-0 cursor-pointer text-sm text-foreground hover:text-muted-foreground transition-colors"
                 >
                     <ArrowLeft className="h-4 w-4" />
                 </button>
-                <h1 style={{ fontSize: 28, fontWeight: 700, color: "#222222" }}>Mate's Listings</h1>
+                <h1 className="text-[28px] font-bold text-foreground">Mate's Listings</h1>
                 {listings.length > 0 && (
-                    <span
-                        className="px-2.5 py-0.5"
-                        style={{
-                            fontSize: 12, fontWeight: 600, color: "#6a6a6a",
-                            backgroundColor: "#f2f2f2", borderRadius: 9999,
-                        }}
-                    >
+                    <span className="px-2.5 py-0.5 text-xs font-semibold text-muted-foreground bg-accent rounded-full">
                         {listings.length}
                     </span>
                 )}
             </div>
 
             {listings.length === 0 ? (
-                <div
-                    className="text-center"
-                    style={{
-                        border: "1.5px dashed #dddddd",
-                        borderRadius: 14,
-                        padding: "64px 24px",
-                    }}
-                >
-                    <p style={{ fontSize: 16, color: "#6a6a6a" }}>This mate hasn't listed anything yet.</p>
+                <div className="text-center border-[1.5px] border-dashed border-border rounded-card py-16 px-6">
+                    <p className="text-base text-muted-foreground">This mate hasn't listed anything yet.</p>
                     <Link
                         to="/mates"
-                        style={{ fontSize: 14, color: "#ff385c", marginTop: 16, display: "inline-block" }}
+                        className="text-sm text-primary mt-4 inline-block no-underline hover:underline"
                     >
                         Back to Mates
                     </Link>
                 </div>
             ) : (
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4" style={{ gap: 16 }}>
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                     {listings.map((item) => (
                         <ListingCard key={item.id} item={item} />
                     ))}

@@ -14,21 +14,6 @@ const formSchema = z.object({
     category: z.string().min(1, "Category is required"),
 })
 
-const labelStyle: React.CSSProperties = {
-    display: "block",
-    fontSize: 14,
-    fontWeight: 500,
-    color: "#222222",
-    marginBottom: 6,
-    lineHeight: 1.29,
-}
-
-const errorStyle: React.CSSProperties = {
-    fontSize: 13,
-    color: "#c13515",
-    marginTop: 4,
-}
-
 export default function EditListing() {
     const { id } = useParams()
     const { session, user } = useAuth()
@@ -131,8 +116,8 @@ export default function EditListing() {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center" style={{ minHeight: "60vh" }}>
-                <Loader2 className="animate-spin" style={{ color: "#ff385c", width: 32, height: 32 }} />
+            <div className="flex items-center justify-center min-h-[60vh]">
+                <Loader2 className="animate-spin text-primary h-8 w-8" />
             </div>
         )
     }
@@ -141,105 +126,88 @@ export default function EditListing() {
     const totalImages = existingImages.length + selectedImages.length
 
     return (
-        <div className="mx-auto max-w-2xl px-6 md:px-10" style={{ paddingTop: 40, paddingBottom: 64 }}>
+        <div className="mx-auto max-w-2xl px-6 md:px-10 pt-10 pb-16">
             <button
                 onClick={() => navigate(-1)}
-                className="flex items-center gap-1.5 mb-6 transition-colors"
-                style={{
-                    background: "none", border: "none", cursor: "pointer",
-                    fontSize: 14, color: "#222222", fontWeight: 400, padding: 0,
-                }}
-                onMouseEnter={(e) => (e.currentTarget.style.color = "#6a6a6a")}
-                onMouseLeave={(e) => (e.currentTarget.style.color = "#222222")}
+                className="flex items-center gap-1.5 mb-6 bg-transparent border-none p-0 cursor-pointer text-sm text-foreground hover:text-muted-foreground transition-colors"
             >
                 <ArrowLeft className="h-4 w-4" /> Back
             </button>
 
-            <h1 style={{ fontSize: 28, fontWeight: 700, color: "#222222", marginBottom: 8 }}>Edit listing</h1>
-            <p style={{ fontSize: 16, color: "#6a6a6a", marginBottom: 32 }}>
+            <h1 className="text-[28px] font-bold text-foreground mb-2">Edit listing</h1>
+            <p className="text-base text-muted-foreground mb-8">
                 Update your listing details below.
             </p>
 
-            <form onSubmit={handleSubmit(onSubmit)} style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+            <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
 
                 <div>
-                    <label htmlFor="title" style={labelStyle}>Title</label>
+                    <label htmlFor="title" className="block text-sm font-medium text-foreground mb-1.5 leading-tight">Title</label>
                     <input
                         id="title"
                         placeholder="Vintage lamp, old bike…"
-                        className="form-field"
-                        style={{ height: 56 }}
+                        className="form-field h-14"
                         {...register("title")}
                     />
-                    {errors.title && <p style={errorStyle}>{errors.title.message}</p>}
+                    {errors.title && <p className="text-[13px] text-destructive mt-1">{errors.title.message}</p>}
                 </div>
 
                 <div>
-                    <label htmlFor="description" style={labelStyle}>Description</label>
+                    <label htmlFor="description" className="block text-sm font-medium text-foreground mb-1.5 leading-tight">Description</label>
                     <textarea
                         id="description"
                         placeholder="Great condition, barely used…"
                         rows={4}
-                        className="form-field"
-                        style={{ padding: "14px 12px", resize: "vertical" }}
+                        className="form-field resize-y py-3.5 px-3"
                         {...register("description")}
                     />
-                    {errors.description && <p style={errorStyle}>{errors.description.message}</p>}
+                    {errors.description && <p className="text-[13px] text-destructive mt-1">{errors.description.message}</p>}
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                     <div>
-                        <label htmlFor="price" style={labelStyle}>Price (£)</label>
+                        <label htmlFor="price" className="block text-sm font-medium text-foreground mb-1.5 leading-tight">Price (£)</label>
                         <input
                             type="number"
                             step="0.01"
                             id="price"
                             placeholder="0.00"
-                            className="form-field"
-                            style={{ height: 56 }}
+                            className="form-field h-14"
                             {...register("price")}
                         />
-                        {errors.price && <p style={errorStyle}>{errors.price.message}</p>}
+                        {errors.price && <p className="text-[13px] text-destructive mt-1">{errors.price.message}</p>}
                     </div>
                     <div>
-                        <label htmlFor="category" style={labelStyle}>Category</label>
+                        <label htmlFor="category" className="block text-sm font-medium text-foreground mb-1.5 leading-tight">Category</label>
                         <input
                             id="category"
                             placeholder="Furniture, electronics…"
-                            className="form-field"
-                            style={{ height: 56 }}
+                            className="form-field h-14"
                             {...register("category")}
                         />
-                        {errors.category && <p style={errorStyle}>{errors.category.message}</p>}
+                        {errors.category && <p className="text-[13px] text-destructive mt-1">{errors.category.message}</p>}
                     </div>
                 </div>
 
-                {/* Photos */}
                 <div>
-                    <label style={labelStyle}>Photos ({totalImages}/10)</label>
+                    <label className="block text-sm font-medium text-foreground mb-1.5 leading-tight">Photos ({totalImages}/10)</label>
 
                     {existingImages.length > 0 && (
                         <div className="mb-3">
-                            <p style={{ fontSize: 13, color: "#6a6a6a", marginBottom: 8 }}>Current photos</p>
+                            <p className="text-[13px] text-muted-foreground mb-2">Current photos</p>
                             <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
                                 {existingImages.map((src, index) => (
                                     <div
                                         key={`existing-${index}`}
-                                        className="relative aspect-square overflow-hidden"
-                                        style={{ borderRadius: 8, border: "1px solid #ebebeb" }}
+                                        className="relative aspect-square overflow-hidden rounded-button border border-hairline-soft"
                                     >
                                         <img src={src} alt={`Existing ${index}`} className="h-full w-full object-cover" />
                                         <button
                                             type="button"
                                             onClick={() => removeExistingImage(index)}
-                                            className="absolute top-1 right-1 flex items-center justify-center"
-                                            style={{
-                                                width: 22, height: 22, borderRadius: "50%",
-                                                backgroundColor: "rgba(0,0,0,0.6)",
-                                                border: "none", cursor: "pointer",
-                                            }}
+                                            className="absolute top-1 right-1 flex items-center justify-center h-[22px] w-[22px] rounded-full bg-black/60 border-none cursor-pointer"
                                         >
-                                            <X className="h-3 w-3" style={{ color: "#ffffff" }} />
+                                            <X className="h-3 w-3 text-white" />
                                         </button>
                                     </div>
                                 ))}
@@ -248,15 +216,7 @@ export default function EditListing() {
                     )}
 
                     <label
-                        className="flex flex-col items-center justify-center cursor-pointer transition-colors"
-                        style={{
-                            border: "1.5px dashed #dddddd",
-                            borderRadius: 8,
-                            padding: "24px",
-                            backgroundColor: totalImages >= 10 ? "#f7f7f7" : "#ffffff",
-                        }}
-                        onMouseEnter={(e) => (e.currentTarget.style.borderColor = "#929292")}
-                        onMouseLeave={(e) => (e.currentTarget.style.borderColor = "#dddddd")}
+                        className={`flex flex-col items-center justify-center cursor-pointer transition-colors border-[1.5px] border-dashed border-border rounded-button p-6 hover:border-muted-soft ${totalImages >= 10 ? "bg-muted" : "bg-background"}`}
                     >
                         <input
                             type="file"
@@ -266,7 +226,7 @@ export default function EditListing() {
                             onChange={onSelectImages}
                             disabled={totalImages >= 10}
                         />
-                        <p style={{ fontSize: 14, color: "#6a6a6a", textAlign: "center" }}>
+                        <p className="text-sm text-muted-foreground text-center">
                             {totalImages >= 10 ? "Maximum 10 photos reached" : "Click to add more photos"}
                         </p>
                     </label>
@@ -276,21 +236,15 @@ export default function EditListing() {
                             {previews.map((src, index) => (
                                 <div
                                     key={`new-${index}`}
-                                    className="relative aspect-square overflow-hidden"
-                                    style={{ borderRadius: 8, border: "1px solid #ebebeb" }}
+                                    className="relative aspect-square overflow-hidden rounded-button border border-hairline-soft"
                                 >
                                     <img src={src} alt={`New ${index}`} className="h-full w-full object-cover" />
                                     <button
                                         type="button"
                                         onClick={() => removeSelectedImage(index)}
-                                        className="absolute top-1 right-1 flex items-center justify-center"
-                                        style={{
-                                            width: 22, height: 22, borderRadius: "50%",
-                                            backgroundColor: "rgba(0,0,0,0.6)",
-                                            border: "none", cursor: "pointer",
-                                        }}
+                                        className="absolute top-1 right-1 flex items-center justify-center h-[22px] w-[22px] rounded-full bg-black/60 border-none cursor-pointer"
                                     >
-                                        <X className="h-3 w-3" style={{ color: "#ffffff" }} />
+                                        <X className="h-3 w-3 text-white" />
                                     </button>
                                 </div>
                             ))}
@@ -301,21 +255,7 @@ export default function EditListing() {
                 <button
                     type="submit"
                     disabled={busy}
-                    className="flex items-center justify-center gap-2 transition-colors"
-                    style={{
-                        backgroundColor: busy ? "#ffd1da" : "#ff385c",
-                        color: "#ffffff",
-                        borderRadius: 8,
-                        padding: "14px 24px",
-                        height: 48,
-                        fontSize: 16,
-                        fontWeight: 500,
-                        border: "none",
-                        cursor: busy ? "not-allowed" : "pointer",
-                        lineHeight: 1.25,
-                    }}
-                    onMouseEnter={(e) => { if (!busy) e.currentTarget.style.backgroundColor = "#e00b41" }}
-                    onMouseLeave={(e) => { if (!busy) e.currentTarget.style.backgroundColor = "#ff385c" }}
+                    className="flex items-center justify-center gap-2 bg-primary hover:bg-rausch-active disabled:bg-rausch-disabled text-primary-foreground rounded-button h-12 px-6 text-base font-medium border-none cursor-pointer disabled:cursor-not-allowed leading-tight transition-colors"
                 >
                     {busy && <Loader2 className="h-4 w-4 animate-spin" />}
                     Update Listing
