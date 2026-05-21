@@ -1,6 +1,6 @@
 import { Navigate } from "react-router-dom"
 import { useAuth } from "@/context/AuthContext"
-import { Loader2, Package, Share2, BadgePoundSterling, Shield, Users, Link2, Check } from "lucide-react"
+import { Loader2, Package, Share2, BadgePoundSterling, Shield, Users, Link2, Check, Car, Armchair, ShieldCheck, SlidersHorizontal } from "lucide-react"
 
 const HOW_IT_WORKS = [
     {
@@ -24,10 +24,33 @@ const HOW_IT_WORKS = [
 ]
 
 const PAIN_POINTS = [
-    "Got large items that need a new home but can't face Marketplace strangers?",
-    "Tired of no-shows and time wasters from people you'll never meet?",
-    "Want your friends to get first dibs before you list publicly?",
-    "Done with endless WhatsApp groups pinging at all hours?",
+    "Got a pram worth £800 sitting in the garage — but you'd only trust a friend's word, not a stranger's listing?",
+    "Selling a car and wading through 40 enquiries to find the one person who actually turns up?",
+    "Got bulky furniture that needs local collection — and you'd rather someone accountable than a Marketplace random?",
+    "Tired of creating a WhatsApp group every time you want to show the right people the right thing?",
+]
+
+const USE_CASES = [
+    {
+        icon: ShieldCheck,
+        title: "Expensive items",
+        description: "Prams, car seats, quality furniture. Your description means something to people who know you. To strangers, it's just words.",
+    },
+    {
+        icon: Car,
+        title: "Selling a car",
+        description: "Stop wading through time-wasters. Buyers from your trusted circle are pre-qualified — serious, local, and accountable.",
+    },
+    {
+        icon: Armchair,
+        title: "Bulky items",
+        description: "Sofas, wardrobes, kids' beds. Local collection only anyway — so make it local and trusted, not local and random.",
+    },
+    {
+        icon: SlidersHorizontal,
+        title: "Niche items",
+        description: "Share the kids' bike with parent friends. The old camera with your photography group. Right item, right people, no group chat chaos.",
+    },
 ]
 
 const FEATURES = [
@@ -149,6 +172,31 @@ export default function Landing() {
                             </div>
                         </div>
 
+                    </div>
+                </section>
+
+                {/* ── Use cases ───────────────────────────────────────────── */}
+                <section aria-labelledby="usecases-heading" className="py-16 md:py-20">
+                    <div className="mx-auto max-w-6xl px-6 md:px-10">
+                        <div className="text-center mb-10">
+                            <h2 id="usecases-heading" className="text-[22px] md:text-[28px] font-bold text-foreground mb-3">
+                                Perfect for
+                            </h2>
+                            <p className="text-base text-muted-foreground max-w-sm mx-auto">
+                                The situations where selling to strangers is genuinely the worst option.
+                            </p>
+                        </div>
+                        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                            {USE_CASES.map(({ icon: Icon, title, description }) => (
+                                <div key={title} className="bg-muted rounded-card p-6 flex flex-col gap-3">
+                                    <div className="h-9 w-9 rounded-button bg-primary/10 flex items-center justify-center">
+                                        <Icon className="h-4 w-4 text-primary" aria-hidden="true" />
+                                    </div>
+                                    <h3 className="text-sm font-semibold text-foreground">{title}</h3>
+                                    <p className="text-sm text-muted-foreground leading-relaxed">{description}</p>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </section>
 

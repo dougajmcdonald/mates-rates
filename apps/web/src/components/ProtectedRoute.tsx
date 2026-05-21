@@ -1,9 +1,10 @@
 import { useAuth } from '@/context/AuthContext'
-import { Navigate, Outlet } from 'react-router-dom'
+import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import { Loader2 } from 'lucide-react'
 
 export function ProtectedRoute() {
     const { user, loading } = useAuth()
+    const location = useLocation()
 
     if (loading) {
         return (
@@ -14,6 +15,7 @@ export function ProtectedRoute() {
     }
 
     if (!user) {
+        sessionStorage.setItem('auth_redirect', location.pathname + location.search)
         return <Navigate to="/" replace />
     }
 

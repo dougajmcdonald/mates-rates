@@ -9,7 +9,9 @@ export default function AuthCallback() {
     useEffect(() => {
         const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
             if (session) {
-                navigate("/dashboard", { replace: true })
+                const redirect = sessionStorage.getItem('auth_redirect')
+                sessionStorage.removeItem('auth_redirect')
+                navigate(redirect || "/dashboard", { replace: true })
             } else if (event === "INITIAL_SESSION") {
                 navigate("/", { replace: true })
             }
