@@ -12,6 +12,7 @@ import Account from "@/pages/Account"
 import { Layout } from "@/components/Layout"
 import MyMates from "@/pages/MyMates"
 import MateListings from "@/pages/MateListings"
+import AuthCallback from "@/pages/AuthCallback"
 
 function Landing() {
   const { signInWithGoogle, user, loading } = useAuth()
@@ -41,6 +42,7 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Landing />} />
+          <Route path="/auth/callback" element={<AuthCallback />} />
           <Route element={<ProtectedRoute />}>
             <Route element={<Layout />}>
               <Route path="/dashboard" element={<Dashboard />} />
