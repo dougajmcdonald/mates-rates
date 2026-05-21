@@ -4,6 +4,7 @@ import { authMiddleware } from './middleware/auth'
 import dotenv from 'dotenv'
 import { UserRepository } from './repositories/UserRepository'
 import { sign, verify } from 'hono/jwt'
+import { Resend } from 'resend'
 import { SocialRepository } from './repositories/SocialRepository'
 import { ListingRepository } from './repositories/ListingRepository'
 import { MessageRepository } from './repositories/MessageRepository'
@@ -11,6 +12,8 @@ import { OfferRepository } from './repositories/OfferRepository'
 import { PaymentService } from './services/PaymentService'
 
 dotenv.config()
+
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null
 
 const app = new Hono<{ Variables: { user: any } }>()
 
@@ -36,7 +39,6 @@ app.post('/api/users/sync', authMiddleware, async (c) => {
     const user = c.get('user')
     const { email, user_metadata } = user
 
-    // Upsert user into our DB using Supabase ID
     const dbUser = await UserRepository.upsert({
         id: user.id,
         email: email || '',
@@ -44,7 +46,22 @@ app.post('/api/users/sync', authMiddleware, async (c) => {
         avatarUrl: user_metadata.avatar_url,
     })
 
-    return c.json({ user: dbUser[0] })
+    const record = dbUser[0]
+    const isNewSignup = record.createdAt && (Date.now() - new Date(record.createdAt).getTime()) < 30_000
+
+    if (isNewSignup && resend) {
+        resend.emails.send({
+            from: 'Mates Rates <onboarding@resend.dev>',
+            to: 'dougajmcdonald@gmail.com',
+            subject: `New signup: ${user_metadata.full_name || email}`,
+            html: `<p>Someone just signed up to Mates Rates 🎉</p>
+                   <p><b>Name:</b> ${user_metadata.full_name || 'Unknown'}</p>
+                   <p><b>Email:</b> ${email}</p>
+                   <p><b>Time:</b> ${new Date().toUTCString()}</p>`,
+        }).catch(err => console.error('Signup notification failed:', err))
+    }
+
+    return c.json({ user: record })
 })
 
 const JWT_SECRET = process.env.SUPABASE_SERVICE_ROLE_KEY! // Reuse key for simplicity
