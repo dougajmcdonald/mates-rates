@@ -1,6 +1,6 @@
 import { Navigate } from "react-router-dom"
 import { useAuth } from "@/context/AuthContext"
-import { Loader2, Package, Share2, BadgePoundSterling, Shield, Users, Link2, Check, Car, Armchair, ShieldCheck, SlidersHorizontal } from "lucide-react"
+import { Loader2, Package, Share2, BadgePoundSterling, Shield, Users, Link2, Check, Car, Armchair, ShieldCheck, SlidersHorizontal, Target, EyeOff } from "lucide-react"
 
 const HOW_IT_WORKS = [
     {
@@ -50,6 +50,16 @@ const USE_CASES = [
         icon: SlidersHorizontal,
         title: "Niche items",
         description: "Share the kids' bike with parent friends. The old camera with your photography group. Right item, right people, no group chat chaos.",
+    },
+    {
+        icon: Target,
+        title: "Target the right people",
+        description: "You know which friends are into fitness, tech, or DIY. Send it to them specifically — smaller audience, but every person is a genuine lead.",
+    },
+    {
+        icon: EyeOff,
+        title: "Control who sees what",
+        description: "Don't offer a Christmas present back to the person who gave it. Choose exactly who your listing goes to — and who it doesn't.",
     },
 ]
 
@@ -186,7 +196,7 @@ export default function Landing() {
                                 The situations where selling to strangers is genuinely the worst option.
                             </p>
                         </div>
-                        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
                             {USE_CASES.map(({ icon: Icon, title, description }) => (
                                 <div key={title} className="bg-muted rounded-card p-6 flex flex-col gap-3">
                                     <div className="h-9 w-9 rounded-button bg-primary/10 flex items-center justify-center">

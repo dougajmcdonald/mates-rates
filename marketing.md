@@ -147,6 +147,25 @@ Warm, honest, slightly wry. You're a parent or homeowner who's been burned befor
 
 ---
 
+**Day 13 (Saturday)**
+> Imagine listing something on Facebook Marketplace.
+>
+> A few days later, the person who bought your item posts a photo of it in their house.
+>
+> You recognise the item immediately.
+>
+> It's the Christmas present someone gave you four weeks ago.
+>
+> Now imagine the person who gave it to you also sees that post.
+>
+> 😬
+>
+> With Mates Rates, you choose exactly who can see each listing. Your unwanted gifts don't have to become awkward conversations.
+
+*[High share potential — very relatable, slightly funny, slightly cringeworthy. Works great as a standalone text post.]*
+
+---
+
 **Day 14 (Monday)**
 > The strangest thing about selling second-hand to strangers is that the whole thing is built on *not* trusting each other.
 >
@@ -376,6 +395,23 @@ Warm, honest, slightly wry. You're a parent or homeowner who's been burned befor
 > 🏃 Sports club, book club, any regular social group
 >
 > One good invite gets you a lot further than fifty strangers on Marketplace.
+
+---
+
+**Day 39 (Tuesday)**
+> Here's something Marketplace can't do.
+>
+> You've got a road bike to sell.
+>
+> You know three people in your life who are into cycling. You know one who's been looking for a new bike. You know two who definitely aren't interested.
+>
+> On Marketplace: post it to everyone on the internet and wade through enquiries from people 40 miles away.
+>
+> On Mates Rates: share it specifically with the cycling people. Three messages sent. One buyer. Done in an afternoon.
+>
+> Smaller audience. Higher conversion. Zero time wasted on people who were never going to buy it.
+
+*[Text post. Works well in cycling, running, sports, hobby community groups too — cross-post if relevant.]*
 
 ---
 
@@ -709,6 +745,10 @@ Warm, honest, slightly wry. You're a parent or homeowner who's been burned befor
 > **Cars and high-value items** — Marketplace for cars is 90% time wasters. A buyer who comes via someone you know is pre-qualified. They're serious, they've done their research, and the transaction takes an afternoon not six weeks.
 >
 > **Niche items** — instead of creating a WhatsApp group for one item, list it and share the link with the specific group of people who'd actually want it. Your "school parents" circle for kids' gear. Your "work friends" for office equipment. Right item, right audience, no noise.
+>
+> **Known interests** — you know which friends are into cycling, tech, fitness gear, or DIY. Send your listing to exactly those people. Smaller audience, but every one of them is a genuine lead.
+>
+> **Control who sees what** — not every listing should go to everyone. The Christmas present you didn't want? Don't accidentally offer it back to the person who gave it to you by posting it somewhere they can see. With Mates Rates, you choose.
 >
 > If any of these apply to what you've got — list it this week.
 >
